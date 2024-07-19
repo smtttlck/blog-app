@@ -1,0 +1,5 @@
+.env
+manuel_scripts/
+dist/
+node_modules/
+public/

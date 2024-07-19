@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "lib": ["ESNext"],
+        "target": "ES6",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strictPropertyInitialization": false,
+        "moduleResolution": "node",
+        "types": ["node", "express"],
+        "sourceMap": true,
+        "allowJs": true,
+        "noUnusedParameters": true
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "manuel_scripts"
+    ],
+    "ts-node": {
+        "files": true
+    }
+}
