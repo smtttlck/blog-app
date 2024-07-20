@@ -85,12 +85,13 @@ export const loginUser: Handler = async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
+                password: user.password,
                 picture_path: user.picture_path
             }
         },
             process.env.USER_TOKEN_SECRET as string,
             { expiresIn: "1d" }
-        );
+        );        
         res.status(200).json({ token });
     }
     else {

@@ -1,0 +1,24 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.page {
+  background-color: var(--white);
+  height: 100vh;
+}
+
+.logo {
+  font-size: 40px;
+}
+
+/* Login */
+.form {
+  width: 500px;
+  height: 400px;
+}
+.form .form-selector {
+  cursor: pointer;
+}

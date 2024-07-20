@@ -1,0 +1,12 @@
+/* Questrial Font */
+@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
+
+/* Font rules and colors */
+:root {
+  font-family: Questrial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --white: #FFF;
+}
+
