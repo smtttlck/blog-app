@@ -22,6 +22,16 @@ export const createUser: Handler = async (req, res) => {
         res.status(400);
         throw new Error("All fields are mandatory");
     }
+    const checkUsername: IUser | null = await User.findOne({ username });
+    const checkEmail: IUser | null = await User.findOne({ email });
+    if (checkUsername) { // check unique username
+        res.status(400);
+        throw new Error("This username is already registered");
+    }
+    if (checkEmail) { // check unique email
+        res.status(400);
+        throw new Error("This email is already registered");
+    }
     const picture_path: IUser['picture_path'] = (req.file) ? (req.file.path) : ""; // for image file
     const hashedPassword: string = await bcrypt.hash(password, 10); // generate hash password
     const user: IUser | null = await User.create({ // create
@@ -41,6 +51,21 @@ export const updateUser: Handler = async (req, res) => {
     if (!user) { // check id
         res.status(400);
         throw new Error("User not found");
+    }
+    if (req.body.username) {
+        const checkUsername: IUser | null = await User.findOne({ username: req.body.username });
+        if (checkUsername) { // check unique username
+            res.status(400);
+            throw new Error("This username is already registered");
+        }
+
+    }
+    if (req.body.email) {
+        const checkEmail: IUser | null = await User.findOne({ email: req.body.email });
+        if (checkEmail) { // check unique email
+            res.status(400);
+            throw new Error("This email is already registered");
+        }
     }
     if (req.file) { // is there a new file?
         if (user.picture_path != "") // is there a old file?
@@ -91,7 +116,7 @@ export const loginUser: Handler = async (req, res) => {
         },
             process.env.USER_TOKEN_SECRET as string,
             { expiresIn: "1d" }
-        );        
+        );
         res.status(200).json({ token });
     }
     else {
