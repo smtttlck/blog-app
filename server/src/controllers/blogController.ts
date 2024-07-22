@@ -5,11 +5,25 @@ import { IBlog } from "../types/models/blogTypes";
 import fs from "fs";
 import { IUser } from "../types/models/userTypes";
 
-// @desc Get blog
+// @desc Get all blog
+// @route GET /api/blog/
+// @access private
+export const getBlogs: Handler = async (_req, res) => {
+    const blogs: IBlog[] | null = await Blog.find({  }).populate("authorId", "-password"); // get all with user
+    blogs.map((blog: IBlog) => {
+        if(blog.picture_path && blog.picture_path !== "") // picture path convert for browser
+            blog.picture_path = `http://localhost:${process.env.PORT}/${blog.picture_path.split("public\\")[1].split("\\").join('/')}`;
+    });
+    res.status(200).json(blogs);
+}
+
+// @desc Get a blog
 // @route GET /api/blog/:id
 // @access private
 export const getBlog: Handler = async (req, res) => {
     const blog: IBlog | null = await Blog.findById(req.params.id); // get one
+    if(blog?.picture_path && blog.picture_path !== "") // picture path convert for browser
+        blog.picture_path = `http://localhost:${process.env.PORT}/${blog.picture_path.split("public\\")[1].split("\\").join('/')}`;
     res.status(200).json(blog);
 }
 

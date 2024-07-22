@@ -1,8 +1,8 @@
+/* General styles */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .page {
@@ -10,8 +10,40 @@
   height: 100vh;
 }
 
+.container {
+  max-width: 1200px !important;
+}
+
+a {
+  color: inherit !important;
+  text-decoration: none;
+}
+
 .logo {
   font-size: 40px;
+}
+
+.navbar {
+  position: relative !important;
+  padding: 0 15rem !important;
+}
+.navbar .navbar-nav {
+  margin: 0 auto;
+  font-size: 25px;
+  color: var(--grey);
+}
+.navbar .nav-item:hover, .navbar-nav .nav-link.active {
+  color: var(--black) !important;
+}
+.profile-picture {
+  font-size: 40px;
+  color: var(--grey);
+}
+.profile-picture img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  margin-bottom: 5px;
 }
 
 /* Login */
@@ -21,4 +53,13 @@
 }
 .form .form-selector {
   cursor: pointer;
+}
+
+/* Home */
+.card {
+  width: 540px;
+  height: 250px !important;
+}
+.card .card-image {
+  height: 250px;
 }

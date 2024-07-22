@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import asyncHandler from "express-async-handler";
 import { createMulter } from "../middlewares/multerConfig";
 import validateTokenHandler from "../middlewares/validateTokenHandler";
-import { createBlog, deleteBlog, getBlog, updateBlog } from "../controllers/blogController";
+import { createBlog, deleteBlog, getBlog, getBlogs, updateBlog } from "../controllers/blogController";
 
 const router: Router = express.Router();
 
@@ -15,6 +15,8 @@ router.route('/')
 router.use(asyncHandler(validateTokenHandler)); // token validation
 
 // private endpoints
+router.route('/')
+    .get(asyncHandler(getBlogs));
 router.route('/:id')
     .get(asyncHandler(getBlog))
     .put(upload.single('image'), asyncHandler(updateBlog))

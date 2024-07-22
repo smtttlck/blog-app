@@ -1,19 +1,25 @@
 import { Field, Formik, Form as FormikForm } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { PiPencilLineBold as Logo } from "react-icons/pi";
 import { ILoginValues, IRegisterValues } from "../types/LoginTypes";
 import * as api from "../api/Api";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import IUser from "../types/UserTypes";
+import { jwtDecode } from "jwt-decode";
+import { login } from "../redux/features/user";
 
 const Form: React.FC = () => {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-      if(localStorage.getItem("authToken"))
-        navigate("/");
-    }, [])
+    const user = useSelector((state: any) => state.user);
+    const dispatch = useDispatch();
     
+    interface IToken {
+        user: IUser;
+        exp: number;
+    }    
 
     const [form, setForm] = useState<"login" | "register">("login");
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -67,9 +73,10 @@ const Form: React.FC = () => {
                         try { // login
                             const result: any = await api.login({ username: values.username, password: values.password} as ILoginValues);
                             if (result.token) {
-                                localStorage.setItem("authToken", result.token);
+                                const token: IToken = jwtDecode<IToken>(result.token as string);
+                                dispatch(login({ user: token.user, token: result.token}));
                                 navigate("/");
-                            }                            
+                            }                     
                         } catch (err: any) {
                             const errorMessage: string = err.response?.data?.message;
                             if(errorMessage === "Username or password not valid")
@@ -106,7 +113,7 @@ const Form: React.FC = () => {
                         }
 
                         <button 
-                            className="btn btn-dark mb-3" 
+                            className="btn btn-dark w-50 mb-3" 
                             type="submit"
                             onClick={() => setErrors({})}
                         >

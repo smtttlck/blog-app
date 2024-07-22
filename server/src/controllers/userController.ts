@@ -10,6 +10,8 @@ import jwt from "jsonwebtoken";
 // @access private
 export const getUser: Handler = async (req, res) => {
     const user: IUser | null = await User.findById(req.params.id); // get one
+    if(user?.picture_path && user.picture_path !== "") // picture path convert for browser
+            user.picture_path = `http://localhost:${process.env.PORT}/${user.picture_path.split("public\\")[1].split("\\").join('/')}`;
     res.status(200).json(user);
 }
 
@@ -106,10 +108,13 @@ export const loginUser: Handler = async (req, res) => {
     }
     const user: IUser | null = await User.findOne({ username }); // get one
     if (user && await bcrypt.compare(password, user.password)) {
+        if(user.picture_path && user.picture_path !== "") // picture path convert for browser
+            user.picture_path = `http://localhost:${process.env.PORT}/${user.picture_path.split("public\\")[1].split("\\").join('/')}`;
         const token = jwt.sign({ // create token
             user: {
                 id: user._id,
                 username: user.username,
+                email: user.email,
                 password: user.password,
                 picture_path: user.picture_path
             }

@@ -1,38 +1,56 @@
-import { useEffect, useState } from "react"
-import IUser from "../types/UserTypes"
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import Navbar from "../components/Navbar";
+import { useSelector } from "react-redux";
+import List from "../components/List";
+import IBlog from "../types/BlogTypes";
+import * as api from "../api/Api";
 
 const Home = () => {
 
     const navigate = useNavigate();
 
-    const [user, setUser] = useState<IUser | null>(null)
+    const user = useSelector((state: any) => state.user);
 
-    interface IToken {
-        user: IUser;
-        exp: number;
-      }
+    const [newPosts, setNewPosts] = useState<IBlog[]>([]);
 
     useEffect(() => {
-        if (!localStorage.getItem("authToken"))
+        if (user.id === "")
             navigate("/login");
-        else {
-            if(!localStorage.getItem("user")){
-                const token = jwtDecode<IToken>(localStorage.getItem("authToken") as string);
-                localStorage.setItem("user", JSON.stringify(token.user));
-            }
-            setUser(JSON.parse(localStorage.getItem("user") as string));
-        }
-              
+    }, [user])
+
+    useEffect(() => {
+        api.fetchData("getBlog", user.token)
+            .then(data => setNewPosts(data)); console.log(newPosts)
     }, [])
+    
 
 
     return (
-        <div>
-            <h1>HOME</h1>
-            {user?.username}
-        </div>
+        <main className="page">
+            <Navbar />
+
+            <div className="container">
+                <div className="page-header my-5">
+                    <h1 className="text-center">Welcome to the World of Blogging!</h1>
+                    <p className="mt-3">Hello and welcome to the world of blogging! Here, you will find inspiring stories,
+                        creative ideas, and tips that will add color to your life. Our goal is to offer you small escapes
+                        from the hustle and bustle of daily life and ensure you learn something new every day. With our
+                        articles in various categories, you can find content that suits you and discover new perspectives.
+                        From travel to technology, health to personal development, we aim to touch the lives of our dear
+                        readers with the wide range of articles we prepare. We wish you enjoyable reading!
+                    </p>
+                </div>
+                <List
+                    title="Last Published"
+                    datas={newPosts}
+                />
+
+            </div>
+
+
+
+        </main>
     )
 }
 
