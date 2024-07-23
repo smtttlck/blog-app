@@ -59,7 +59,42 @@ a {
 .card {
   width: 540px;
   height: 250px !important;
+  overflow: hidden;
 }
 .card .card-image {
   height: 250px;
+}
+.card :where(.card-title, .card-text) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card .card-title {
+  -webkit-line-clamp: 1;
+}
+.card .card-text {
+  -webkit-line-clamp: 5;
+}
+.card .author {
+  height: 65px;
+}
+
+/* Write */
+.create-blog .form-image img {
+  height: 350px;
+  width: 1000px;
+  border-radius: 15px;
+}
+.create-blog .img-button {
+  font-size: 35px;
+  cursor: pointer;
+}
+.create-blog #title {
+  font-size: 40px;
+}
+.create-blog #text {
+  font-size: 30px;
+}
+.create-blog :where(input, textarea) {
+  box-shadow: none !important;
 }

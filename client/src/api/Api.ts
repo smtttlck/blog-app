@@ -1,13 +1,21 @@
 import axios from "axios";
 import { ILoginValues, IRegisterValues } from "../types/LoginTypes";
-import { useSelector } from "react-redux";
 
 
 // data fetch functions
-export const fetchData = async (fetchString: string, token: string) => {
+export const fetchData = async (fetchString: string, token: string, data: any) => {
     const params: string[] = fetchString.split(/(?=[A-Z])/);
     let urlParams: string = params[1].toLowerCase(); // for table name
     const url: string = `http://localhost:3001/api/${urlParams}`; // fetch url
+
+    // convert form data(for image files)
+    if (fetchString == "postBlog") {
+        const formData = new FormData()
+        for (const key in data) {
+                    formData.append(key, data[key])
+        }
+        data = formData
+    }
 
     // authorization add to headers
     axios.defaults.headers.common['authorization'] = `Bearer ${token}`;
@@ -15,12 +23,12 @@ export const fetchData = async (fetchString: string, token: string) => {
     switch (params[0]) { // fetch
         case "get":
             return axios.get(url).then(response => response.data)
+        case "post":
+            return axios.post(url, data)
         // case "delete":
         //     return axios.delete(url)
         // case "put":
         //     return axios.put(url, data)
-        // case "post":
-        //     return axios.post(url, data)
     } 
 }
 

@@ -1,5 +1,6 @@
 import IRoute from "../types/RouteTypes";
 import { Login, Home } from "../pages/index";
+import Write from "../pages/Write";
 
 const routes: IRoute[] = [
     {
@@ -12,6 +13,12 @@ const routes: IRoute[] = [
         name: "Home",
         path: "/",
         component: Home,
+        auth: true
+    },
+    {
+        name: "Write",
+        path: "/write",
+        component: Write,
         auth: true
     }
 ]

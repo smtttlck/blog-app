@@ -15,11 +15,11 @@ const Form: React.FC = () => {
 
     const user = useSelector((state: any) => state.user);
     const dispatch = useDispatch();
-    
+
     interface IToken {
         user: IUser;
         exp: number;
-    }    
+    }
 
     const [form, setForm] = useState<"login" | "register">("login");
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -36,7 +36,7 @@ const Form: React.FC = () => {
     }
 
     return (
-        <div className="form d-flex flex-column justify-content-center align-items-center mt-5 border rounded">
+        <div className="form d-flex flex-column align-items-center mt-5 border rounded">
             <span className="logo">
                 <Logo />
             </span>
@@ -61,7 +61,7 @@ const Form: React.FC = () => {
                     onSubmit={async (values: ILoginValues | IRegisterValues) => {
                         if (form === "register") { // register
                             try {
-                                await api.register(values as IRegisterValues);                                
+                                await api.register(values as IRegisterValues);
                             } catch (err: any) {
                                 const errorMessage: string = err.response?.data?.message;
                                 if (errorMessage === "This username is already registered" || errorMessage === "This email is already registered") {
@@ -71,15 +71,15 @@ const Form: React.FC = () => {
                             }
                         }
                         try { // login
-                            const result: any = await api.login({ username: values.username, password: values.password} as ILoginValues);
+                            const result: any = await api.login({ username: values.username, password: values.password } as ILoginValues);
                             if (result.token) {
                                 const token: IToken = jwtDecode<IToken>(result.token as string);
-                                dispatch(login({ user: token.user, token: result.token}));
+                                dispatch(login({ user: token.user, token: result.token }));
                                 navigate("/");
-                            }                     
+                            }
                         } catch (err: any) {
                             const errorMessage: string = err.response?.data?.message;
-                            if(errorMessage === "Username or password not valid")
+                            if (errorMessage === "Username or password not valid")
                                 setErrors({ ["username"]: "Username or password not valid", ["password"]: "Username or password not valid" });
                         }
                     }}
@@ -88,8 +88,8 @@ const Form: React.FC = () => {
                         {(form === "login") ? (
                             Object.keys(loginInitialValues).map((field: string) => (
                                 <div key={`login-${field}`} className="form-input form-floating w-75 my-3 mx-auto">
-                                    <Field 
-                                        id={field} className="form-control" 
+                                    <Field
+                                        id={field} className="form-control"
                                         name={field} placeholder=""
                                         type={(field === "password" || field === "email") ? field : "text"}
                                     />
@@ -100,9 +100,9 @@ const Form: React.FC = () => {
                         ) : (
                             Object.keys(registerInitialValues).map((field: string) => (
                                 <div key={`register-${field}`} className="form-input form-floating w-75 my-3 mx-auto">
-                                    <Field 
-                                        id={field} className="form-control" 
-                                        name={field} placeholder="" 
+                                    <Field
+                                        id={field} className="form-control"
+                                        name={field} placeholder=""
                                         type={(field === "password" || field === "email") ? field : "text"}
                                     />
                                     <label htmlFor={field}>{field}</label>
@@ -110,10 +110,10 @@ const Form: React.FC = () => {
                                 </div>
                             ))
                         )
-                        }
 
-                        <button 
-                            className="btn btn-dark w-50 mb-3" 
+                        }
+                        <button
+                            className="btn btn-dark d-block w-50 my-3 mx-auto"
                             type="submit"
                             onClick={() => setErrors({})}
                         >
@@ -123,6 +123,7 @@ const Form: React.FC = () => {
                     </FormikForm>
                 </Formik>
             </div>
+
         </div>
     )
 }
