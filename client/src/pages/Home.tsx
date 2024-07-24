@@ -13,6 +13,7 @@ const Home = () => {
     const user = useSelector((state: any) => state.user);
 
     const [newPosts, setNewPosts] = useState<IBlog[]>([]);
+    const [topPosts, setTopPosts] = useState<IBlog[]>([]);
 
     useEffect(() => {
         if (user.id === "")
@@ -20,11 +21,14 @@ const Home = () => {
     }, [user])
 
     useEffect(() => {
-        api.fetchData("getBlog", user.token)
-            .then(data => setNewPosts(data)); console.log(newPosts)
-    }, [])
-    
+        // Latest Published
+        api.fetchData("getBlog", user.token, null, "?sort=createdAt&sortType=DESC&limit=6")
+            .then(data => setNewPosts(data));
 
+        // Most Bookmarked
+        api.fetchData("getBlog", user.token, null, "?limit=6")
+            .then(data => setTopPosts(data)); // sonra bunu ayarla
+    }, [])
 
     return (
         <main className="page">
@@ -42,8 +46,13 @@ const Home = () => {
                     </p>
                 </div>
                 <List
-                    title="Last Published"
+                    title="Latest Published"
                     datas={newPosts}
+                />
+
+                <List
+                    title="Most Bookmarked"
+                    datas={topPosts}
                 />
 
             </div>

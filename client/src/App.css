@@ -16,7 +16,7 @@
 
 a {
   color: inherit !important;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 .logo {
@@ -80,12 +80,12 @@ a {
 }
 
 /* Write */
-.create-blog .form-image img {
+.create-blog .form-image img, .blog .blog-img img {
   height: 350px;
   width: 1000px;
   border-radius: 15px;
 }
-.create-blog .img-button {
+.create-blog .img-button label {
   font-size: 35px;
   cursor: pointer;
 }
@@ -97,4 +97,21 @@ a {
 }
 .create-blog :where(input, textarea) {
   box-shadow: none !important;
+}
+
+/* Blog */
+.blog .text {
+  white-space: pre-wrap;
+}
+.blog .date {
+  color: var(--yellow);
+}
+.blog .blog-buttons span {
+  cursor: pointer;
+}
+.blog .edit-button {
+  color: var(--green);
+}
+.blog .delete-button {
+  color: var(--red);
 }

@@ -34,17 +34,17 @@ const CreateBlog: React.FC<ICreateBlogProps> = ({ authorId, token }) => {
             <Formik
                 initialValues={blogValues}
                 onSubmit={async (values: createBlogType) => {
-                    api.fetchData("postBlog", token, values);
+                    api.fetchData("postBlog", token, values, null);
                 }}
             >
                 {({ setFieldValue, values }) => (
                     <FormikForm>
                     <div className="form-image">
-                        {image && <img src={URL.createObjectURL(image)} />}
+                        {image && <img className="img-fluids object-fit-scale" src={URL.createObjectURL(image)} />}
                     </div>
                     <div className="form-header d-flex">
                         <div className="img-button my-auto">
-                            <label htmlFor="image-upload" style={{ cursor: 'pointer' }}>
+                            <label htmlFor="image-upload">
                                 <Plus />
                             </label>
                             <input

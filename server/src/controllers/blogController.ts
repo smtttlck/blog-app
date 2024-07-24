@@ -5,11 +5,15 @@ import { IBlog } from "../types/models/blogTypes";
 import fs from "fs";
 import { IUser } from "../types/models/userTypes";
 
-// @desc Get all blog
+// @desc Get blogs
 // @route GET /api/blog/
 // @access private
-export const getBlogs: Handler = async (_req, res) => {
-    const blogs: IBlog[] | null = await Blog.find({  }).populate("authorId", "-password"); // get all with user
+export const getBlogs: Handler = async (req, res) => {
+    const { limit = 6, sort = "_id", sortType = "ASC" } = req.query;
+    const blogs: IBlog[] | null = await Blog.find({  }) // get multiple with user
+        .populate("authorId", "-password")
+        .sort({ [sort as string]: (sortType.toString().toUpperCase() === "ASC" ? 1 : -1) })
+        .limit(parseInt(limit as string));
     blogs.map((blog: IBlog) => {
         if(blog.picture_path && blog.picture_path !== "") // picture path convert for browser
             blog.picture_path = `http://localhost:${process.env.PORT}/${blog.picture_path.split("public\\")[1].split("\\").join('/')}`;
@@ -21,7 +25,7 @@ export const getBlogs: Handler = async (_req, res) => {
 // @route GET /api/blog/:id
 // @access private
 export const getBlog: Handler = async (req, res) => {
-    const blog: IBlog | null = await Blog.findById(req.params.id); // get one
+    const blog: IBlog | null = await Blog.findById(req.params.id).populate("authorId", "-password"); // get one with user
     if(blog?.picture_path && blog.picture_path !== "") // picture path convert for browser
         blog.picture_path = `http://localhost:${process.env.PORT}/${blog.picture_path.split("public\\")[1].split("\\").join('/')}`;
     res.status(200).json(blog);

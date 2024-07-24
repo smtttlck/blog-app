@@ -1,0 +1,117 @@
+import { useSelector } from "react-redux";
+import IBlog from "../types/BlogTypes";
+import { FaEdit as Edit, FaRegTrashAlt as Delete } from "react-icons/fa";
+import Modal from "./Modal";
+import { useRef, useState } from "react";
+import * as api from "../api/Api";
+
+interface IShowBlogProps extends IBlog { }
+
+const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_path, text, title, updatedAt }) => {
+
+    const user = useSelector((state: any) => state.user);
+
+    const [operation, setOperation] = useState<"edit" | "show">("show");
+
+    const titleRef = useRef<HTMLInputElement>(null);
+    const textRef = useRef<HTMLTextAreaElement>(null);
+
+    type BlogForUpdate = Omit<IBlog, "_id" | "authorId" | "createdAt" | "updatedAt">;
+
+    const updateHandler = (): void =>  {
+        const blog: BlogForUpdate = {
+            title: titleRef.current?.value as string,
+            text: textRef.current?.value as string
+        }
+        api.fetchData(`putBlog/${_id}`, user.token, blog, null)
+            .then(() => window.location.reload());
+    }
+
+    return (
+        <>
+            <Modal
+                id={_id}
+                token={user.token}
+            />
+            <div className="blog py-4">
+                <div className="blog-img">
+                    <img
+                        className="img-fluids object-fit-scale"
+                        src={picture_path === "" ? "/public/default-blog.jpg" : picture_path}
+                        alt={title}
+                    />
+                </div>
+                {(typeof authorId !== "string" && authorId._id === user.id) && (
+                    <div className="blog-buttons fs-3 float-end">
+                        <span 
+                            className="edit-button me-1" 
+                            title="Edit"
+                            onClick={() => setOperation(operation === "show" ? "edit" : "show")}
+                        >
+                            <Edit />
+                        </span>
+                        <span
+                            className="delete-button"
+                            title="Delete"
+                            data-bs-toggle="modal" data-bs-target="#modal"
+                        >
+                            <Delete />
+                        </span>
+                    </div>
+                )}
+                <div className="blog-title d-flex justify-content-center">
+                    {operation === "show" ? 
+                        <h1 className="fs-1">{title}</h1> : 
+                        <input 
+                            ref={titleRef} defaultValue={title}
+                            className="form-check fs-1 border-0 p-0" 
+                            type="text" name="title" 
+                        />
+                    }
+                </div>
+                <div className="blog-info d-flex justify-content-between">
+                    <div className="author d-flex mb-3">
+                        <div className="profile-picture me-3">
+                            {typeof authorId !== "string" && authorId.picture_path === "" ?
+                                <span className="profile-picture">
+                                    <img src="/public/default-user.png" />
+                                </span> :
+                                typeof authorId !== "string" && authorId.picture_path &&
+                                <span className="profile-picture">
+                                    <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                </span>
+                            }
+                        </div>
+                        <div className="user-info d-flex flex-column mt-1 fs-5">
+                            {typeof authorId !== "string" && (<>
+                                <small className="username text-body-secondary"><b>{authorId.username}</b></small>
+                                <small className="updatedAt text-body-secondary">{authorId.email}</small>
+                            </>)}
+                        </div>
+                    </div>
+                    <p className="date fs-2">{createdAt.toString().split("T")[0]}</p>
+                </div>
+                <div className="text text-break fs-4">
+                {operation === "show" ? 
+                        <p>{text}</p> : 
+                        <textarea 
+                            ref={textRef} defaultValue={text}
+                            className="form-check fs-1 border-0 p-0 w-100" 
+                            name="text" rows={10}
+                        />
+                    }
+                </div>
+                {operation === "edit" && 
+                    <button 
+                        className="btn btn-primary float-end my-3"
+                        onClick={() => updateHandler()}
+                    >
+                        Update
+                    </button>
+                }
+            </div>
+        </>
+    )
+}
+
+export default ShowBlog;

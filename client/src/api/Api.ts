@@ -3,10 +3,13 @@ import { ILoginValues, IRegisterValues } from "../types/LoginTypes";
 
 
 // data fetch functions
-export const fetchData = async (fetchString: string, token: string, data: any) => {
+export const fetchData = async (fetchString: string, token: string, data: any, queryString: string | null) => {
     const params: string[] = fetchString.split(/(?=[A-Z])/);
     let urlParams: string = params[1].toLowerCase(); // for table name
+    if (queryString) // paramater for query
+        urlParams += queryString
     const url: string = `http://localhost:3001/api/${urlParams}`; // fetch url
+
 
     // convert form data(for image files)
     if (fetchString == "postBlog") {
@@ -25,10 +28,10 @@ export const fetchData = async (fetchString: string, token: string, data: any) =
             return axios.get(url).then(response => response.data)
         case "post":
             return axios.post(url, data)
-        // case "delete":
-        //     return axios.delete(url)
-        // case "put":
-        //     return axios.put(url, data)
+        case "delete":
+            return axios.delete(url)
+        case "put":
+            return axios.put(url, data)
     } 
 }
 
