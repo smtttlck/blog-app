@@ -19,23 +19,25 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                         <div className="card-body">
                             <h5 className="card-title">{title}</h5>
                             <p className="card-text">{text}</p>
-                            <div className="author d-flex position-absolute bottom-0 mb-3">
-                                <div className="profile-picture me-3">
-                                    {typeof authorId !== "string" && authorId.picture_path === "" ?
-                                        <span className="profile-picture">
-                                            <img src="/public/default-user.png" />
-                                        </span> :
-                                        typeof authorId !== "string" && authorId.picture_path &&
-                                        <span className="profile-picture">
-                                            <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
-                                        </span>
-                                    }
+                            <Link to={`/user/${typeof authorId !== "string" && authorId._id}`}>
+                                <div className="author d-flex position-absolute bottom-0 mb-3">
+                                    <div className="profile-picture me-3">
+                                        {typeof authorId !== "string" && authorId.picture_path === "" ?
+                                            <span className="profile-picture">
+                                                <img src="/public/default-user.png" />
+                                            </span> :
+                                            typeof authorId !== "string" && authorId.picture_path &&
+                                            <span className="profile-picture">
+                                                <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                            </span>
+                                        }
+                                    </div>
+                                    <div className="user-info d-flex flex-column my-auto">
+                                        {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
+                                        <small className="updatedAt text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
+                                    </div>
                                 </div>
-                                <div className="user-info d-flex flex-column my-auto">
-                                    {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
-                                    <small className="updatedAt text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
-                                </div>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                 </div>

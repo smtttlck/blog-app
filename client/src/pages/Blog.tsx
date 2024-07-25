@@ -4,7 +4,9 @@ import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import * as api from "../api/Api";
 import IBlog from "../types/BlogTypes";
+import IUser from "../types/UserTypes";
 import ShowBlog from "../components/ShowBlog";
+import List from "../components/List";
 
 const Blog = () => {
 
@@ -12,9 +14,10 @@ const Blog = () => {
 
     const user = useSelector((state: any) => state.user);
 
-    const { id } = useParams();
+    const { id } = useParams<string>();
 
     const [blog, setBlog] = useState<IBlog | null>(null);
+    const [otherBlogs, setOtherBlogs] = useState<IBlog[] | null>(null);
 
     useEffect(() => {
         if (user.id === "")
@@ -23,10 +26,14 @@ const Blog = () => {
 
     useEffect(() => {
         api.fetchData(`getBlog/${id}`, user.token, null, null)
-            .then((data: IBlog) => setBlog(data));
-    }, [id])
+            .then((data: IBlog) => {
+                setBlog(data);
+                if (data.authorId && typeof data.authorId !== "string")
+                    api.fetchData("getBlog/", user.token, null, `?authorId=${data.authorId._id}&excludeBlogId=${id}&limit=3`)
+                        .then((data: IBlog[]) => setOtherBlogs(data));
+            }); console.log("ooo: ", otherBlogs) // sil
 
-    console.log(blog); // sil   
+    }, [id])
 
     return (
         <main className="page">
@@ -45,8 +52,17 @@ const Blog = () => {
                         updatedAt={blog.updatedAt}
                     />
                 }
-
             </div>
+
+                <div className="other-blogs col-11 mx-auto pb-5">
+                    {otherBlogs &&
+                        <List
+                            title="User's other blogs"
+                            datas={otherBlogs}
+                        />
+                    }
+                </div>
+
 
         </main>
     )

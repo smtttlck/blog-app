@@ -37,13 +37,18 @@ a {
 }
 .profile-picture {
   font-size: 40px;
-  color: var(--grey);
+}
+:where(.profile-picture, .big-profile-picture) img {
+  border-radius: 50%;
+  margin-bottom: 5px;
 }
 .profile-picture img {
   height: 50px;
   width: 50px;
-  border-radius: 50%;
-  margin-bottom: 5px;
+}
+.big-profile-picture img {
+  height: 120px;
+  width: 120px;
 }
 
 /* Login */
@@ -70,13 +75,20 @@ a {
   overflow: hidden;
 }
 .card .card-title {
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 1 !important;
 }
 .card .card-text {
   -webkit-line-clamp: 5;
+  color: var(--grey);
 }
 .card .author {
   height: 65px;
+}
+.author:hover .username {
+  text-decoration: underline;
+}
+.card:hover .card-title {
+  color: var(--green);
 }
 
 /* Write */
@@ -114,4 +126,12 @@ a {
 }
 .blog .delete-button {
   color: var(--red);
+}
+
+/* User */
+.big-card {
+  height: 520px !important;
+}
+.big-card .card-text {
+  color: var(--grey) !important;
 }

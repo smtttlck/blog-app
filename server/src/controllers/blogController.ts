@@ -4,13 +4,17 @@ import Blog from "../models/blogModel";
 import { IBlog } from "../types/models/blogTypes";
 import fs from "fs";
 import { IUser } from "../types/models/userTypes";
+import mongoose from "mongoose";
 
 // @desc Get blogs
 // @route GET /api/blog/
 // @access private
 export const getBlogs: Handler = async (req, res) => {
-    const { limit = 6, sort = "_id", sortType = "ASC" } = req.query;
-    const blogs: IBlog[] | null = await Blog.find({  }) // get multiple with user
+    const { limit = 6, sort = "_id", sortType = "ASC", authorId, excludeBlogId } = req.query;
+    let query = {};
+    if(authorId)
+        query = (excludeBlogId) ? { _id: { $ne: excludeBlogId }, authorId: authorId } : { authorId };
+    const blogs: IBlog[] | null = await Blog.find(query) // get multiple with user
         .populate("authorId", "-password")
         .sort({ [sort as string]: (sortType.toString().toUpperCase() === "ASC" ? 1 : -1) })
         .limit(parseInt(limit as string));
@@ -97,4 +101,12 @@ export const deleteBlog: Handler = async (req, res) => {
         fs.unlinkSync(blog.picture_path as string);
     await blog.deleteOne(); // delete
     res.status(200).json(blog);
+}
+
+// @desc Get blog count for user
+// @route GET /api/blog/count/:id
+// @access private
+export const getBlogCount: Handler = async (req, res) => {
+    const count: number = (await Blog.find({ authorId: req.params.id })).length; // get count
+    res.status(200).json(count);
 }

@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import asyncHandler from "express-async-handler";
 import { createMulter } from "../middlewares/multerConfig";
 import validateTokenHandler from "../middlewares/validateTokenHandler";
-import { createBlog, deleteBlog, getBlog, getBlogs, updateBlog } from "../controllers/blogController";
+import { createBlog, deleteBlog, getBlog, getBlogCount, getBlogs, updateBlog } from "../controllers/blogController";
 
 const router: Router = express.Router();
 
@@ -21,5 +21,7 @@ router.route('/:id')
     .get(asyncHandler(getBlog))
     .put(upload.single('image'), asyncHandler(updateBlog))
     .delete(asyncHandler(deleteBlog));
+router.route('/count/:id')
+    .get(asyncHandler(getBlogCount));
 
 module.exports = router;

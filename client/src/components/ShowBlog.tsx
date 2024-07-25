@@ -4,6 +4,7 @@ import { FaEdit as Edit, FaRegTrashAlt as Delete } from "react-icons/fa";
 import Modal from "./Modal";
 import { useRef, useState } from "react";
 import * as api from "../api/Api";
+import { Link } from "react-router-dom";
 
 interface IShowBlogProps extends IBlog { }
 
@@ -71,20 +72,24 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                 </div>
                 <div className="blog-info d-flex justify-content-between">
                     <div className="author d-flex mb-3">
-                        <div className="profile-picture me-3">
-                            {typeof authorId !== "string" && authorId.picture_path === "" ?
-                                <span className="profile-picture">
-                                    <img src="/public/default-user.png" />
-                                </span> :
-                                typeof authorId !== "string" && authorId.picture_path &&
-                                <span className="profile-picture">
-                                    <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
-                                </span>
-                            }
-                        </div>
+                        <Link to={typeof authorId !== "string" ? `/user/${authorId._id}` : ""}>
+                            <div className="profile-picture me-3">
+                                {typeof authorId !== "string" && authorId.picture_path === "" ?
+                                    <span className="profile-picture">
+                                        <img src="/public/default-user.png" />
+                                    </span> :
+                                    typeof authorId !== "string" && authorId.picture_path &&
+                                    <span className="profile-picture">
+                                        <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                    </span>
+                                }
+                            </div>
+                        </Link>
                         <div className="user-info d-flex flex-column mt-1 fs-5">
                             {typeof authorId !== "string" && (<>
-                                <small className="username text-body-secondary"><b>{authorId.username}</b></small>
+                                <Link to={typeof authorId !== "string" ? `/user/${authorId._id}` : ""}>
+                                    <small className="username text-body-secondary"><b>{authorId.username}</b></small>
+                                </Link>
                                 <small className="updatedAt text-body-secondary">{authorId.email}</small>
                             </>)}
                         </div>
