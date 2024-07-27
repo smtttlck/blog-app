@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
-import CreateBlog from "../components/CreateBlog";
+import AboutUs from "../components/AboutUs";
 import Footer from "../components/Footer";
 
-const Write = () => {
+const About = () => {
 
     const navigate = useNavigate();
 
@@ -22,11 +22,8 @@ const Write = () => {
             <Navbar />
 
             <div className="container">
-                
-                <CreateBlog 
-                    authorId={user.id}
-                    token={user.token}
-                />
+
+                <AboutUs />
 
             </div>
 
@@ -36,4 +33,4 @@ const Write = () => {
     )
 }
 
-export default Write
+export default About

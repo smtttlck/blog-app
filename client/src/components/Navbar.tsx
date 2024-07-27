@@ -29,13 +29,10 @@ const Navbar: React.FC = () => {
                             <Link to="/" className={`nav-link ${(pagePath === "/" || pagePath === "") ? "active" : ""}`}>Home</Link>
                         </li>
                         <li className="nav-item">
-                        <Link to="/" className={`nav-link ${pagePath === "/ss" ? "active" : ""}`}>Post</Link>
-                        </li>
-                        <li className="nav-item">
                         <Link to="/write" className={`nav-link ${pagePath === "write" ? "active" : ""}`}>Write</Link>
                         </li>
                         <li className="nav-item">
-                        <Link to="/" className={`nav-link ${pagePath === "/ss" ? "active" : ""}`}>Author</Link>
+                        <Link to="/about" className={`nav-link ${pagePath === "/about" ? "active" : ""}`}>About</Link>
                         </li>
                     </ul>
                     <span className="profile-button">

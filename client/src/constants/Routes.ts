@@ -1,5 +1,5 @@
 import IRoute from "../types/RouteTypes";
-import { Login, Home, Blog, Write, User } from "../pages/index";
+import { Login, Home, Blog, Write, User, About } from "../pages/index";
 
 const routes: IRoute[] = [
     {
@@ -30,6 +30,12 @@ const routes: IRoute[] = [
         name: "User",
         path: "/user/:id",
         component: User,
+        auth: true
+    },
+    {
+        name: "About",
+        path: "/about",
+        component: About,
         auth: true
     }
 ]

@@ -7,6 +7,7 @@ import IBlog from "../types/BlogTypes";
 import IUser from "../types/UserTypes";
 import ShowBlog from "../components/ShowBlog";
 import List from "../components/List";
+import Footer from "../components/Footer";
 
 const Blog = () => {
 
@@ -55,7 +56,7 @@ const Blog = () => {
             </div>
 
                 <div className="other-blogs col-11 mx-auto pb-5">
-                    {otherBlogs &&
+                    {(otherBlogs && otherBlogs.length > 0) &&
                         <List
                             title="User's other blogs"
                             datas={otherBlogs}
@@ -63,6 +64,7 @@ const Blog = () => {
                     }
                 </div>
 
+            <Footer />
 
         </main>
     )

@@ -9,8 +9,16 @@
 
   --white: #FFF;
   --grey: #7F7F7F;
+  --grey2: #F8F9FA;
   --black: #000;
+  --black2: #00000080;
   --yellow: #bfa580;
   --green: #398180;
   --red: #C9575A;
+
+  --facebook: #3b5999;
+  --twitter: #55acee;
+  --instagram: #e4405f;
+  --github: #24292F;
+  --linkedin: #0077B5;
 }

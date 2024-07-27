@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import * as api from "../api/Api";
 import IBlog from "../types/BlogTypes";
 import List from "../components/List";
+import Footer from "../components/Footer";
 
 const User = () => {
 
@@ -61,6 +62,7 @@ const User = () => {
 
             </div>
 
+            <Footer />
 
         </main >
     )
