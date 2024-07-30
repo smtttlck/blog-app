@@ -10,10 +10,9 @@ const Login = () => {
   const user = useSelector((state: any) => state.user);
 
   useEffect(() => {
-    if(user.id !== "")
+    if(user.username !== "")
       navigate("/");
   }, [])
-
 
   return (
     <main className="page d-flex justify-content-center">

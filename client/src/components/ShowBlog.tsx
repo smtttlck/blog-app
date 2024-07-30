@@ -30,10 +30,13 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
 
     return (
         <>
-            <Modal
+            {(typeof authorId !== "string" && user.id == authorId._id) &&
+                <Modal
                 id={_id}
                 token={user.token}
+                option="deleteBlog"
             />
+            }
             <div className="blog py-4">
                 <div className="blog-img">
                     <img

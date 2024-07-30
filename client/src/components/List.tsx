@@ -1,9 +1,10 @@
 import IBlog from "../types/BlogTypes";
 import BigCard from "./BigCard";
 import Card from "./Card";
+import Loading from "./Loading";
 
 interface IListProps {
-    title: string;
+    title?: string;
     cardType?: string;
     datas: IBlog[];
 }
@@ -11,13 +12,19 @@ interface IListProps {
 const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
     return (
         <div className="list">
-            <h3>{title}</h3>
-            <hr />
+
+            {title &&
+                <>
+                    <h3>{title}</h3>
+                    <hr />
+                </>
+            }
 
             <div className="cards d-flex flex-wrap justify-content-evenly">
-                {datas.map((data: IBlog) =>
+                {datas.length > 0 ? 
+                datas.map((data: IBlog) =>
                     cardType === "big" ?
-                        (<BigCard 
+                        (<BigCard
                             key={data._id}
                             _id={data._id}
                             authorId={data.authorId}
@@ -25,7 +32,7 @@ const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
                             text={data.text}
                             picture_path={data.picture_path}
                             createdAt={data.createdAt}
-                            updatedAt={data.updatedAt}                        
+                            updatedAt={data.updatedAt}
                         />) :
                         (<Card
                             key={data._id}
@@ -37,7 +44,8 @@ const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
                             createdAt={data.createdAt}
                             updatedAt={data.updatedAt}
                         />)
-                )}
+                ) : <Loading />
+                }
             </div>
 
 

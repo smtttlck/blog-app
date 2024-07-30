@@ -12,7 +12,7 @@ export const fetchData = async (fetchString: string, token: string, data: any, q
 
 
     // convert form data(for image files)
-    if (fetchString == "postBlog") {
+    if (fetchString == "postBlog" || fetchString.startsWith("putUser")) {
         const formData = new FormData()
         for (const key in data) {
                     formData.append(key, data[key])

@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import List from "../components/List";
 import IBlog from "../types/BlogTypes";
 import * as api from "../api/Api";
 import Footer from "../components/Footer";
+import Modal from "../components/Modal";
 
 const Home = () => {
 
-    const navigate = useNavigate();
-
     const user = useSelector((state: any) => state.user);
 
+    const [isNewUser, setIsNewUser] = useState<boolean>(false);
     const [newPosts, setNewPosts] = useState<IBlog[]>([]);
     const [topPosts, setTopPosts] = useState<IBlog[]>([]);
 
     useEffect(() => {
-        if (user.id === "")
-            navigate("/login");
-    }, [user])
 
-    useEffect(() => {
+        if(localStorage.getItem("newUser")) {
+            setIsNewUser(true);
+            localStorage.removeItem("newUser");
+        }
+
         // Latest Published
         api.fetchData("getBlog", user.token, null, "?sort=createdAt&sortType=DESC&limit=6")
             .then(data => setNewPosts(data));
@@ -32,8 +32,16 @@ const Home = () => {
     }, [])
 
     return (
-        <main className="page">
+        <main className="page"> 
             <Navbar />
+
+            {isNewUser && 
+                <Modal
+                    id={user.id}
+                    token={user.token}
+                    option="newUser"
+                />
+            }
 
             <div className="container">
                 <div className="page-header my-5">

@@ -19,7 +19,7 @@ const BigCard: React.FC<IBigCardProps> = ({ _id, authorId, title, text, picture_
                         <h3 className="card-title">{title}</h3>
                     </Link>
                     <p className="card-text fs-5">{text}</p>
-                    <small className="card-text text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
+                    <small className="card-text text-body-secondary position-absolute bottom-0 mb-2">{updatedAt.toString().split("T")[0]}</small>
                 </div>
         </div>
     )

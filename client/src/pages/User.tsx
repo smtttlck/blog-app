@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import * as api from "../api/Api";
@@ -9,19 +9,12 @@ import Footer from "../components/Footer";
 
 const User = () => {
 
-    const navigate = useNavigate();
-
     const user = useSelector((state: any) => state.user);
 
     const { id } = useParams<string>();
 
     const [count, setCount] = useState<number>();
     const [blogs, setBlogs] = useState<IBlog[] | null>(null);
-
-    useEffect(() => {
-        if (user.id === "")
-            navigate("/login");
-    }, [user])
 
     useEffect(() => {
         api.fetchData(`getBlog/count/${id}`, user.token, null, null)
@@ -53,12 +46,10 @@ const User = () => {
 
                 {blogs &&
                     <List
-                        title="Latest Published"
                         cardType="big"
                         datas={blogs}
                     />
                 }
-
 
             </div>
 

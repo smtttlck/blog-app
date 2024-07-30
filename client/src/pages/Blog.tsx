@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import * as api from "../api/Api";
 import IBlog from "../types/BlogTypes";
-import IUser from "../types/UserTypes";
 import ShowBlog from "../components/ShowBlog";
 import List from "../components/List";
 import Footer from "../components/Footer";
 
 const Blog = () => {
-
-    const navigate = useNavigate();
 
     const user = useSelector((state: any) => state.user);
 
@@ -20,10 +17,6 @@ const Blog = () => {
     const [blog, setBlog] = useState<IBlog | null>(null);
     const [otherBlogs, setOtherBlogs] = useState<IBlog[] | null>(null);
 
-    useEffect(() => {
-        if (user.id === "")
-            navigate("/login");
-    }, [user])
 
     useEffect(() => {
         api.fetchData(`getBlog/${id}`, user.token, null, null)

@@ -3,6 +3,8 @@ import { Field, Formik, Form as FormikForm } from "formik";
 import IBlog from "../types/BlogTypes";
 import { useState } from "react";
 import * as api from "../api/Api";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 interface ICreateBlogProps {
     authorId: string;
@@ -10,6 +12,11 @@ interface ICreateBlogProps {
 }
 
 const CreateBlog: React.FC<ICreateBlogProps> = ({ authorId, token }) => {
+    
+    const user = useSelector((state: any) => state.user);
+
+    const navigate = useNavigate();
+
     const [image, setImage] = useState<File | null>(null);
 
     type createBlogType = Omit<IBlog, "_id" | "createdAt" | "updatedAt" | "picture_path"> & { image?: File | null };
@@ -34,7 +41,14 @@ const CreateBlog: React.FC<ICreateBlogProps> = ({ authorId, token }) => {
             <Formik
                 initialValues={blogValues}
                 onSubmit={async (values: createBlogType) => {
-                    api.fetchData("postBlog", token, values, null);
+                    try {
+                        api.fetchData("postBlog", token, values, null);
+                        await api.fetchData("getBlog/", user.token, null, `?authorId=${user.id}&sort=createdAt&sortType=DESC&limit=1`)
+                            .then((data) => navigate(`/blog/${data[0]._id}`));
+                        
+                    } catch (err) {
+                        console.log(err);
+                    }
                 }}
             >
                 {({ setFieldValue, values }) => (

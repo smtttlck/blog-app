@@ -62,6 +62,7 @@ const Form: React.FC = () => {
                         if (form === "register") { // register
                             try {
                                 await api.register(values as IRegisterValues);
+                                localStorage.setItem("newUser", "true");
                             } catch (err: any) {
                                 const errorMessage: string = err.response?.data?.message;
                                 if (errorMessage === "This username is already registered" || errorMessage === "This email is already registered") {

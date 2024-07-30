@@ -5,20 +5,23 @@ interface ICardProps extends IBlog { };
 
 const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, createdAt, updatedAt }) => {
     return (
-        <Link to={`/blog/${_id}`}>
             <div className="card mb-3">
                 <div className="row g-0">
                     <div className="card-image border-end col-4">
+                    <Link to={`/blog/${_id}`}>
                         <img
                             src={picture_path !== "" ? picture_path : "/public/default-blog.jpg"}
                             className="img-fluid w-100 h-100 rounded-start"
                             alt={title}
                         />
+                    </Link>
                     </div>
                     <div className="col-8">
                         <div className="card-body">
+                        <Link to={`/blog/${_id}`}>
                             <h5 className="card-title">{title}</h5>
                             <p className="card-text">{text}</p>
+                            </Link>
                             <Link to={`/user/${typeof authorId !== "string" && authorId._id}`}>
                                 <div className="author d-flex position-absolute bottom-0 mb-3">
                                     <div className="profile-picture me-3">
@@ -42,7 +45,6 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                     </div>
                 </div>
             </div>
-        </Link>
     )
 }
 
