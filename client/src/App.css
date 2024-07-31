@@ -148,6 +148,9 @@ ul {
 .card:hover .card-title {
   color: var(--green);
 }
+.card .bookmark {
+  cursor: pointer;
+}
 
 /* Write */
 .create-blog .form-image img, .blog .blog-img img {

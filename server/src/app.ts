@@ -25,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended:false }));
 // routes
 app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/blog", require("./routes/blogRoutes"));
+app.use("/api/bookmark", require("./routes/bookmarkRoutes"));
 
 app.use(errorHandler); // error handling
 

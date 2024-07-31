@@ -29,7 +29,7 @@ export const fetchData = async (fetchString: string, token: string, data: any, q
         case "post":
             return axios.post(url, data)
         case "delete":
-            return axios.delete(url)
+            return (urlParams == "bookmark") ? axios.delete(url, { data }) : axios.delete(url)
         case "put":
             return axios.put(url, data)
     } 

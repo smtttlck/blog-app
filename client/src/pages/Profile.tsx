@@ -10,13 +10,15 @@ const Profile = () => {
 
     const user = useSelector((state: any) => state.user);
 
-    const [blogType, setBlogType] = useState<"blogs">("blogs");
+    const [blogType, setBlogType] = useState<"blogs" | "bookmarks">("blogs");
     const [blogs, setBlogs] = useState<IBlog[]>([]);
 
     useEffect(() => {
         let queryString: string;
         if (blogType === "blogs")
             queryString = `?authorId=${user.id}&limit=6`;
+        else if (blogType === "bookmarks")
+            queryString = `?userId=${user.id}&onlyBookmarks=true&limit=6`;
         api.fetchData("getBlog/", user.token, null, queryString!)
             .then(data => setBlogs(data));
     }, [blogType])
@@ -39,6 +41,12 @@ const Profile = () => {
                             onClick={() => setBlogType("blogs")}
                         >
                             Blogs
+                        </li>
+                        <li
+                            className={`list-group-item w-auto list-group-item-action ${blogType == "bookmarks" ? "list-group-item-success" : ""}`}
+                            onClick={() => setBlogType("bookmarks")}
+                        >
+                            Bookmarks
                         </li>
                     </ul>
                 </div>

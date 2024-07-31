@@ -5,6 +5,7 @@ export interface IBlog extends Document {
     title: string;
     text: string;
     picture_path?: string;
+    isBookmarked?: boolean;
     created_date: Date;
     updated_date: Date;
 }

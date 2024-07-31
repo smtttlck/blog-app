@@ -18,6 +18,9 @@ const blogSchema: mongoose.Schema = new mongoose.Schema({
     picture_path: {
         type: String
     },
+    isBookmarked: {
+        type: Boolean
+    }
     }, {
     timestamps: true
 });

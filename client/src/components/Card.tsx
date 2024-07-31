@@ -1,13 +1,29 @@
 import { Link } from "react-router-dom"
 import IBlog from "../types/BlogTypes"
+import { FaRegBookmark as UnBookmared, FaBookmark as Bookmared } from "react-icons/fa";
+import { useState } from "react";
+import * as api from "../api/Api";
+import { useSelector } from "react-redux";
 
-interface ICardProps extends IBlog { };
+interface ICardProps extends IBlog {
+    userId: string;
+};
 
-const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, createdAt, updatedAt }) => {
+const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, createdAt, updatedAt, userId, isBookmarked }) => {
+    
+    const user = useSelector((state: any) => state.user);
+
+    const [bookmark, setBookmark] = useState<boolean>(isBookmarked!);
+
+    const handleBookmark = (): void => {
+        api.fetchData(`${bookmark ? "delete" : "post"}Bookmark`, user.token, { userId, blogId: _id }, null)
+            .then(() => setBookmark(!bookmark));
+    }
+
     return (
-            <div className="card mb-3">
-                <div className="row g-0">
-                    <div className="card-image border-end col-4">
+        <div className="card mb-3">
+            <div className="row g-0">
+                <div className="card-image border-end col-4">
                     <Link to={`/blog/${_id}`}>
                         <img
                             src={picture_path !== "" ? picture_path : "/public/default-blog.jpg"}
@@ -15,36 +31,42 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                             alt={title}
                         />
                     </Link>
-                    </div>
-                    <div className="col-8">
-                        <div className="card-body">
+                </div>
+                <div className="col-8">
+                    <div className="card-body">
                         <Link to={`/blog/${_id}`}>
                             <h5 className="card-title">{title}</h5>
                             <p className="card-text">{text}</p>
-                            </Link>
-                            <Link to={`/user/${typeof authorId !== "string" && authorId._id}`}>
-                                <div className="author d-flex position-absolute bottom-0 mb-3">
-                                    <div className="profile-picture me-3">
-                                        {typeof authorId !== "string" && authorId.picture_path === "" ?
-                                            <span className="profile-picture">
-                                                <img src="/public/default-user.png" />
-                                            </span> :
-                                            typeof authorId !== "string" && authorId.picture_path &&
-                                            <span className="profile-picture">
-                                                <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
-                                            </span>
-                                        }
-                                    </div>
-                                    <div className="user-info d-flex flex-column my-auto">
-                                        {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
-                                        <small className="updatedAt text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
-                                    </div>
+                        </Link>
+                        <Link to={`/user/${typeof authorId !== "string" && authorId._id}`}>
+                            <div className="author d-flex position-absolute bottom-0 mb-3">
+                                <div className="profile-picture me-3">
+                                    {typeof authorId !== "string" && authorId.picture_path === "" ?
+                                        <span className="profile-picture">
+                                            <img src="/public/default-user.png" />
+                                        </span> :
+                                        typeof authorId !== "string" && authorId.picture_path &&
+                                        <span className="profile-picture">
+                                            <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                        </span>
+                                    }
                                 </div>
-                            </Link>
-                        </div>
+                                <div className="user-info d-flex flex-column my-auto">
+                                    {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
+                                    <small className="updatedAt text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
+                    <span 
+                        className="bookmark d-flex position-absolute bottom-0 end-0 m-3 fs-4"
+                        onClick={() => handleBookmark()}
+                    >
+                        {bookmark ? <Bookmared /> : <UnBookmared />}
+                    </span>
                 </div>
             </div>
+        </div>
     )
 }
 

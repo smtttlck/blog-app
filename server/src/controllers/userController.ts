@@ -4,6 +4,8 @@ import { IUser } from "../types/models/userTypes";
 import fs from "fs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { IBookmark } from "../types/models/bookmarkTypes";
+import Bookmark from "../models/bookmarkModel";
 
 // @desc Get user
 // @route GET /api/user/:id
@@ -91,8 +93,11 @@ export const deleteUser: Handler = async (req, res) => {
         res.status(400);
         throw new Error("User not found");
     }
-    if (user.picture_path !== "")
+    if (user.picture_path !== "") // delete picture
         fs.unlinkSync(user.picture_path as string);
+    const bookmarks: IBookmark[] | null = await Bookmark.find({ userId: user._id });
+    if(bookmarks.length > 0) // delete bookmarks
+        await Bookmark.deleteMany({ userId: user._id });
     await user.deleteOne(); // delete
     res.status(200).json(user);
 }

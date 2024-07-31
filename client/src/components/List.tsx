@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import IBlog from "../types/BlogTypes";
 import BigCard from "./BigCard";
 import Card from "./Card";
@@ -10,6 +11,9 @@ interface IListProps {
 }
 
 const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
+
+    const user = useSelector((state: any) => state.user);
+
     return (
         <div className="list">
 
@@ -36,6 +40,7 @@ const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
                         />) :
                         (<Card
                             key={data._id}
+                            userId={user.id}
                             _id={data._id}
                             authorId={data.authorId}
                             title={data.title}
@@ -43,6 +48,7 @@ const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
                             picture_path={data.picture_path}
                             createdAt={data.createdAt}
                             updatedAt={data.updatedAt}
+                            isBookmarked={data.isBookmarked}
                         />)
                 ) : <Loading />
                 }

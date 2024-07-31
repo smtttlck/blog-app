@@ -6,6 +6,7 @@ export default interface IBlog {
     title: string;
     text: string;
     picture_path?: string;
+    isBookmarked?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
