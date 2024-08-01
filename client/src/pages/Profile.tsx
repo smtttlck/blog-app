@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import * as api from "../api/Api";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import IBlog from "../types/BlogTypes";
 import List from "../components/List";
 
@@ -12,16 +12,55 @@ const Profile = () => {
 
     const [blogType, setBlogType] = useState<"blogs" | "bookmarks">("blogs");
     const [blogs, setBlogs] = useState<IBlog[]>([]);
+    const [offset, setOffset] = useState<number>(0);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+
+    const loaderRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        let queryString: string;
-        if (blogType === "blogs")
-            queryString = `?authorId=${user.id}&limit=6`;
-        else if (blogType === "bookmarks")
-            queryString = `?userId=${user.id}&onlyBookmarks=true&limit=6`;
-        api.fetchData("getBlog/", user.token, null, queryString!)
-            .then(data => setBlogs(data));
+        setBlogs([]);
+        setHasMore(true);
+        setOffset(0);
     }, [blogType])
+
+    const fetchBlogs = async (offset: number) => {
+        setIsFetching(true);
+        const query: string = `?userId=${user.id}&${(blogType === "bookmarks") ? "onlyBookmarks=true" : ""}&limit=6&offset=${offset}`;
+        const data: IBlog[] = await api.fetchData("getBlog/", user.token, null, query);
+        if (data.length === 0)
+            setHasMore(false);
+        else
+            setBlogs(prevBlogs => (prevBlogs) ? [...prevBlogs, ...data] : [...data]);
+        setIsFetching(false);
+    }
+
+    useEffect(() => {
+        if (hasMore)
+            fetchBlogs(offset);
+    }, [offset, hasMore])
+
+    const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+        const target = entries[0];
+        if (target.isIntersecting && !isFetching && hasMore) {
+            setOffset(prevOffset => prevOffset + 6);
+        }
+    }, [isFetching, hasMore]);
+
+    useEffect(() => {
+        const option = {
+            root: null,
+            rootMargin: '20px',
+            threshold: 1.0
+        };
+
+        const observer = new IntersectionObserver(handleObserver, option);
+        if (loaderRef.current) observer.observe(loaderRef.current);
+
+        return () => {
+            if (loaderRef.current) observer.unobserve(loaderRef.current);
+        };
+    }, [handleObserver]);
 
     return (
         <main className="page">
@@ -54,6 +93,7 @@ const Profile = () => {
                 <List
                     datas={blogs}
                 />
+                <div ref={loaderRef} />
 
             </div>
 

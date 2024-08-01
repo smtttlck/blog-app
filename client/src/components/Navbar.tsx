@@ -1,12 +1,17 @@
-import { PiPencilLineBold as Logo } from "react-icons/pi";
+import { PiPencilLineBold as Logo, PiMagnifyingGlassBold as Search } from "react-icons/pi";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../redux/features/user";
+import { useRef } from "react";
 
 const Navbar: React.FC = () => {
 
     const location = useLocation();
     const pagePath: string = location.pathname.split('/')[1];
+    
+    const navigate = useNavigate();
+
+    const searchBarRef = useRef<HTMLInputElement>(null);
 
     const user = useSelector((state: any) => state.user);
     const dispatch = useDispatch();
@@ -31,16 +36,30 @@ const Navbar: React.FC = () => {
                             <Link to="/" className={`nav-link ${(pagePath === "/" || pagePath === "") ? "active" : ""}`}>Home</Link>
                         </li>
                         <li className="nav-item">
+                            <Link to="/explore" className={`nav-link ${pagePath === "/explore" ? "active" : ""}`}>Explore</Link>
+                        </li>
+                        <li className="nav-item">
                             <Link to="/write" className={`nav-link ${pagePath === "write" ? "active" : ""}`}>Write</Link>
                         </li>
                         <li className="nav-item">
                             <Link to="/about" className={`nav-link ${pagePath === "/about" ? "active" : ""}`}>About</Link>
                         </li>
-                        <li className="nav-item">
-                            <Link to="/profile" className={`nav-link ${pagePath === "/profile" ? "active" : ""}`}>Profile</Link>
-                        </li>
-
                     </ul>
+                    <div className="search-bar input-group me-3">
+                        <input 
+                            ref={searchBarRef} type="text"
+                            className="form-control"  placeholder="Search" 
+                            aria-label="Search" aria-describedby="button-addon2" 
+                        />
+                        <button 
+                            className="btn btn-outline-secondary" 
+                            type="button" 
+                            id="button-addon2"
+                            onClick={() => navigate(`/explore?name=${searchBarRef.current?.value}`)}
+                        >
+                            <Search />
+                        </button>
+                    </div>
                     <span className="dropdown">
                         <span className="profile-button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span className="profile-picture">

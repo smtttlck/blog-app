@@ -59,6 +59,14 @@ ul {
 .navbar .dropdown a:active {
   background-color: unset;
 }
+.navbar .search-bar {
+  max-width: 250px;
+}
+@media only screen and (max-width: 1250px) {
+  .navbar {
+    padding: 0 5rem !important;
+  }  
+}
 
 .footer {
   background-color: var(--grey2);
@@ -119,8 +127,13 @@ ul {
 }
 
 /* Home */
-.card {
+.cards .card {  
   width: 540px;
+}
+.bigCards .card {  
+  width: 90%;
+}
+.card {
   height: 250px !important;
   overflow: hidden;
 }

@@ -11,7 +11,7 @@ import { IBookmark } from "../types/models/bookmarkTypes";
 // @route GET /api/blog/
 // @access private
 export const getBlogs: Handler = async (req, res) => {
-    const { limit = 6, offset = 0, sort = "_id", sortType = "ASC", authorId, excludeBlogId, userId, onlyBookmarks } = req.query;
+    const { limit = 6, offset = 0, sort = "_id", sortType = "ASC", authorId, excludeBlogId, userId, onlyBookmarks, name } = req.query;
     let query = {};
     if (authorId)
         query = (excludeBlogId) ? { _id: { $ne: excludeBlogId }, authorId: authorId } : { authorId };
@@ -22,6 +22,8 @@ export const getBlogs: Handler = async (req, res) => {
             query = { _id: blogIds };
         }
     }
+    else if(name)
+        query = { title: { $regex: name, $options: 'i' } }
     const blogs: IBlog[] | null = await Blog.find(query) // get multiple with user
         .populate("authorId", "-password")
         .sort({ [sort as string]: (sortType.toString().toUpperCase() === "ASC" ? 1 : -1) })

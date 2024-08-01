@@ -25,7 +25,7 @@ const Home = () => {
         // Latest Published
         api.fetchData("getBlog", user.token, null, `?sort=createdAt&sortType=DESC&limit=6&userId=${user.id}`)
             .then(data => setNewPosts(data));
-console.log(newPosts)//silll
+
         // Most Bookmarked
         api.fetchData("getBlog", user.token, null, `?limit=6&userId=${user.id}`)
             .then(data => setTopPosts(data)); // sonra bunu ayarla

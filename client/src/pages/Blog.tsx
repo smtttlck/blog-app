@@ -25,7 +25,7 @@ const Blog = () => {
                 if (data.authorId && typeof data.authorId !== "string")
                     api.fetchData("getBlog/", user.token, null, `?authorId=${data.authorId._id}&excludeBlogId=${id}&limit=3`)
                         .then((data: IBlog[]) => setOtherBlogs(data));
-            }); console.log("ooo: ", otherBlogs) // sil
+            });
 
     }, [id])
 
