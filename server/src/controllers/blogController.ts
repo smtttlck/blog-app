@@ -1,7 +1,7 @@
 import { Handler } from "express";
 import User from "../models/userModel";
 import Blog from "../models/blogModel";
-import { IBlog } from "../types/models/blogTypes";
+import { IBlog, IComment } from "../types/models/blogTypes";
 import fs from "fs";
 import { IUser } from "../types/models/userTypes";
 import Bookmark from "../models/bookmarkModel";
@@ -13,7 +13,7 @@ import { IBookmark } from "../types/models/bookmarkTypes";
 export const getBlogs: Handler = async (req, res) => {
     const { limit = 6, offset = 0, sort = "_id", sortType = "ASC", authorId, excludeBlogId, userId, onlyBookmarks, name } = req.query;
     let query = {};
-    if (authorId)
+    if (authorId) // query settings
         query = (excludeBlogId) ? { _id: { $ne: excludeBlogId }, authorId: authorId } : { authorId };
     else if(onlyBookmarks) {
         const bookmarks: IBookmark[] | null = await Bookmark.find({ userId });

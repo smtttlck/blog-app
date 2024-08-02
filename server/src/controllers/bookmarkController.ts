@@ -34,6 +34,11 @@ export const createBookmark: Handler = async(req, res) => {
         userId,
         blogId
     });
+    await Blog.findByIdAndUpdate( // bookmark counter increase
+        blogId,
+        { $inc: { bookmarkCounter: 1 } },
+        { new: true }
+    );
     res.status(201).json(newBookmark);
 }
 
@@ -62,5 +67,10 @@ export const deleteBookmark: Handler = async(req, res) => {
         throw new Error("Bookmark not found");
     }
     await bookmark.deleteOne(); // delete
+    await Blog.findByIdAndUpdate( // bookmark counter decrease
+        blogId,
+        { $inc: { bookmarkCounter: -1 } },
+        { new: true }
+    );
     res.status(200).json(bookmark);
 }

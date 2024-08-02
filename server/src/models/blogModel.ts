@@ -15,6 +15,16 @@ const blogSchema: mongoose.Schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    bookmarkCounter: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    commentCounter: {
+        type: Number,
+        default: 0,
+        required: true
+    },
     picture_path: {
         type: String
     },

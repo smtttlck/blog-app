@@ -201,6 +201,12 @@ ul {
 .blog .delete-button {
   color: var(--red);
 }
+.comment-button .btn:focus {
+  border: none;
+}
+.comments :where(.content, .comment-date) {
+  color: var(--grey);
+}
 
 /* User */
 .big-card {

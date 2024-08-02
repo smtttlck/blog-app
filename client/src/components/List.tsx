@@ -37,6 +37,7 @@ const List: React.FC<IListProps> = ({ title, cardType = "small", datas }) => {
                             createdAt={data.createdAt}
                             updatedAt={data.updatedAt}
                             isBookmarked={data.isBookmarked}
+                            commentCounter={data.commentCounter}
                         />
                     ) : <Loading />
                 }

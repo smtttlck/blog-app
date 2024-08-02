@@ -27,8 +27,8 @@ const Home = () => {
             .then(data => setNewPosts(data));
 
         // Most Bookmarked
-        api.fetchData("getBlog", user.token, null, `?limit=6&userId=${user.id}`)
-            .then(data => setTopPosts(data)); // sonra bunu ayarla
+        api.fetchData("getBlog", user.token, null, `?sort=bookmarkCounter&sortType=DESC&limit=6`)
+            .then(data => setTopPosts(data));
     }, [])
 
     return (

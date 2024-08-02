@@ -3,10 +3,11 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
 import * as api from "../api/Api";
-import IBlog from "../types/BlogTypes";
+import IBlog, { IComment } from "../types/BlogTypes";
 import ShowBlog from "../components/ShowBlog";
 import List from "../components/List";
 import Footer from "../components/Footer";
+import Comment from "../components/Comment";
 
 const Blog = () => {
 
@@ -16,6 +17,8 @@ const Blog = () => {
 
     const [blog, setBlog] = useState<IBlog | null>(null);
     const [otherBlogs, setOtherBlogs] = useState<IBlog[] | null>(null);
+    const [comments, setComments] = useState<IComment[] | null>(null);
+    const [newComment, setNewComment] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -25,9 +28,13 @@ const Blog = () => {
                 if (data.authorId && typeof data.authorId !== "string")
                     api.fetchData("getBlog/", user.token, null, `?authorId=${data.authorId._id}&excludeBlogId=${id}&limit=3`)
                         .then((data: IBlog[]) => setOtherBlogs(data));
-            });
-
+        });
     }, [id])
+
+    useEffect(() => {
+        api.fetchData(`getComment/${id}`, user.token, null, null)
+            .then(data => setComments(data));
+    }, [id, newComment])
 
     return (
         <main className="page">
@@ -36,15 +43,22 @@ const Blog = () => {
             <div className="container">
 
                 {blog &&
-                    <ShowBlog
-                        _id={blog._id}
-                        authorId={blog.authorId}
-                        createdAt={blog.createdAt}
-                        picture_path={blog.picture_path}
-                        text={blog.text}
-                        title={blog.title}
-                        updatedAt={blog.updatedAt}
-                    />
+                    <>
+                        <ShowBlog
+                            _id={blog._id}
+                            authorId={blog.authorId}
+                            createdAt={blog.createdAt}
+                            picture_path={blog.picture_path}
+                            text={blog.text}
+                            title={blog.title}
+                            updatedAt={blog.updatedAt}
+                        />
+                        <Comment 
+                            blogId={blog._id}
+                            comments={comments} setComments={setComments}
+                            newComment={newComment} setNewComment={setNewComment}
+                        />
+                    </>
                 }
             </div>
 

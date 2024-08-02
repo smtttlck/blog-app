@@ -22,11 +22,12 @@ const Profile = () => {
         setBlogs([]);
         setHasMore(true);
         setOffset(0);
+        fetchBlogs(offset);
     }, [blogType])
 
     const fetchBlogs = async (offset: number) => {
         setIsFetching(true);
-        const query: string = `?userId=${user.id}&${(blogType === "bookmarks") ? "onlyBookmarks=true" : ""}&limit=6&offset=${offset}`;
+        const query: string = `?${(blogType === "bookmarks") ? ("onlyBookmarks=true&userId=") : ("authorId=")}${user.id}&limit=6&offset=${offset}`;
         const data: IBlog[] = await api.fetchData("getBlog/", user.token, null, query);
         if (data.length === 0)
             setHasMore(false);

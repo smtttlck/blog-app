@@ -8,7 +8,7 @@
     "build": "tsc",
     "watch": "ts-watch --onSuccess \"npm start\"",
     "delete": "node manuel_scripts/deleteDist.js",
-    "dev": "npm run delete && npm run build && npm run watch",
+    "dev": "npm run delete && npm run build && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Samet TATLICAK",

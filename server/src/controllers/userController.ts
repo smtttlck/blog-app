@@ -6,6 +6,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IBookmark } from "../types/models/bookmarkTypes";
 import Bookmark from "../models/bookmarkModel";
+import Blog from "../models/blogModel";
+import { IBlog } from "../types/models/blogTypes";
 
 // @desc Get user
 // @route GET /api/user/:id
@@ -98,6 +100,9 @@ export const deleteUser: Handler = async (req, res) => {
     const bookmarks: IBookmark[] | null = await Bookmark.find({ userId: user._id });
     if(bookmarks.length > 0) // delete bookmarks
         await Bookmark.deleteMany({ userId: user._id });
+    const blogs: IBlog[] | null = await Blog.find({ authorId: user._id });
+    if(blogs.length > 0) // delete blogs
+        await Blog.deleteMany({ authorId: user._id });
     await user.deleteOne(); // delete
     res.status(200).json(user);
 }

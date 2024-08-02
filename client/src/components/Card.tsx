@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import IBlog from "../types/BlogTypes"
-import { FaRegBookmark as UnBookmared, FaBookmark as Bookmared } from "react-icons/fa";
+import { FaRegBookmark as UnBookmared, FaBookmark as Bookmared, FaRegComment as Comment } from "react-icons/fa";
 import { useState } from "react";
 import * as api from "../api/Api";
 import { useSelector } from "react-redux";
@@ -9,7 +9,7 @@ interface ICardProps extends IBlog {
     userId: string;
 };
 
-const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, createdAt, updatedAt, userId, isBookmarked }) => {
+const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, updatedAt, userId, isBookmarked, commentCounter }) => {
     
     const user = useSelector((state: any) => state.user);
 
@@ -53,7 +53,13 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                                 </div>
                                 <div className="user-info d-flex flex-column my-auto">
                                     {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
-                                    <small className="updatedAt text-body-secondary">{updatedAt.toString().split("T")[0]}</small>
+                                    <small className="subText text-body-secondary">
+                                        <span className="updatedAt">{updatedAt.toString().split("T")[0]}</span> ·
+                                        <span className="comment-counter">
+                                            <span className="icon ms-2 me-1 fs-5"><Comment /></span>
+                                            <b>{commentCounter}</b>
+                                        </span>
+                                    </small>
                                 </div>
                             </div>
                         </Link>
