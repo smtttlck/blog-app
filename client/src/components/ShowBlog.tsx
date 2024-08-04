@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import { useRef, useState } from "react";
 import * as api from "../api/Api";
 import { Link } from "react-router-dom";
+import { dateToString, pathForPicture } from "../utils/helperFuncs";
 
 interface IShowBlogProps extends IBlog { }
 
@@ -83,7 +84,7 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                                     </span> :
                                     typeof authorId !== "string" && authorId.picture_path &&
                                     <span className="profile-picture">
-                                        <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                        <img src={pathForPicture(authorId.picture_path)} />
                                     </span>
                                 }
                             </div>
@@ -97,7 +98,7 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                             </>)}
                         </div>
                     </div>
-                    <p className="date fs-2">{createdAt.toString().split("T")[0]}</p>
+                    <p className="date fs-2">{dateToString(createdAt)}</p>
                 </div>
                 <div className="text text-break fs-4">
                 {operation === "show" ? 

@@ -10,7 +10,6 @@ export const fetchData = async (fetchString: string, token: string, data: any, q
         urlParams += queryString
     const url: string = `http://localhost:3001/api/${urlParams}`; // fetch url
 
-
     // convert form data(for image files)
     if (fetchString == "postBlog" || fetchString.startsWith("putUser")) {
         const formData = new FormData()

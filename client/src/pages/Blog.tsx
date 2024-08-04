@@ -7,7 +7,7 @@ import IBlog, { IComment } from "../types/BlogTypes";
 import ShowBlog from "../components/ShowBlog";
 import List from "../components/List";
 import Footer from "../components/Footer";
-import Comment from "../components/Comment";
+import CommentBox from "../components/CommentBox";
 
 const Blog = () => {
 
@@ -53,7 +53,7 @@ const Blog = () => {
                             title={blog.title}
                             updatedAt={blog.updatedAt}
                         />
-                        <Comment 
+                        <CommentBox 
                             blogId={blog._id}
                             comments={comments} setComments={setComments}
                             newComment={newComment} setNewComment={setNewComment}
@@ -67,6 +67,7 @@ const Blog = () => {
                         <List
                             title="User's other blogs"
                             datas={otherBlogs}
+                            targetUrl={`/user/${(blog && typeof blog.authorId !== "string") && blog.authorId._id}`}
                         />
                     }
                 </div>

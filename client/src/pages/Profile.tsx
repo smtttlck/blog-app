@@ -5,29 +5,47 @@ import Footer from "../components/Footer";
 import { useCallback, useEffect, useRef, useState } from "react";
 import IBlog from "../types/BlogTypes";
 import List from "../components/List";
+import TabList from "../components/TabList";
+import ProfileCard from "../components/ProfileCard";
 
 const Profile = () => {
 
     const user = useSelector((state: any) => state.user);
 
-    const [blogType, setBlogType] = useState<"blogs" | "bookmarks">("blogs");
+    const [blogType, setBlogType] = useState<"blogs" | "bookmarks" | "comments">("blogs");
     const [blogs, setBlogs] = useState<IBlog[]>([]);
     const [offset, setOffset] = useState<number>(0);
     const [isFetching, setIsFetching] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [counters, setCounters] = useState<any>({});
 
     const loaderRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const getCounters = async () => {
+            const blogCounter: number = await api.fetchData(`getBlog/count/${user.id}`, user.token, null, null);
+            const followerCounter: number = await api.fetchData(`getFollow/follower/${user.id}`, user.token, null, "?onlyCount=true");
+            const followingCounter: number = await api.fetchData(`getFollow/following/${user.id}`, user.token, null, "?onlyCount=true");
+            setCounters({ blogCounter, followerCounter, followingCounter });
+        }
+        getCounters();
+    }, [])    
 
     useEffect(() => {
         setBlogs([]);
         setHasMore(true);
         setOffset(0);
-        fetchBlogs(offset);
     }, [blogType])
 
     const fetchBlogs = async (offset: number) => {
         setIsFetching(true);
-        const query: string = `?${(blogType === "bookmarks") ? ("onlyBookmarks=true&userId=") : ("authorId=")}${user.id}&limit=6&offset=${offset}`;
+        let query: string = `?limit=6&offset=${offset}`;
+        if(blogType === "bookmarks")
+            query += `&onlyBookmarks=true&userId=${user.id}`;
+        else if(blogType === "blogs")
+            query += `&authorId=${user.id}`;
+        else if(blogType === "comments")
+            query += `&onlyComments=true&userId=${user.id}`;
         const data: IBlog[] = await api.fetchData("getBlog/", user.token, null, query);
         if (data.length === 0)
             setHasMore(false);
@@ -69,27 +87,15 @@ const Profile = () => {
 
             <div className="container">
 
-                <div className="big-profile-picture text-center mt-3">
-                    <img src={user.picture_path} />
-                    <h3>{user.username}</h3>
-                </div>
+                <ProfileCard
+                    username={user.username}
+                    picture_path={user.picture_path}
+                    counters={counters}
+                />
 
-                <div className="tablist d-flex justify-content-center my-2">
-                    <ul className="list-group list-group-horizontal">
-                        <li
-                            className={`list-group-item w-auto list-group-item-action ${blogType == "blogs" ? "list-group-item-success" : ""}`}
-                            onClick={() => setBlogType("blogs")}
-                        >
-                            Blogs
-                        </li>
-                        <li
-                            className={`list-group-item w-auto list-group-item-action ${blogType == "bookmarks" ? "list-group-item-success" : ""}`}
-                            onClick={() => setBlogType("bookmarks")}
-                        >
-                            Bookmarks
-                        </li>
-                    </ul>
-                </div>
+                <TabList 
+                    blogType={blogType} setBlogType={setBlogType}
+                />
 
                 <List
                     datas={blogs}

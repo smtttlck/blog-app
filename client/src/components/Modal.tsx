@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import * as api from "../api/Api";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import IUser from "../types/UserTypes";
+import { updatePicturePath } from "../redux/features/user";
 
 interface IModalProps {
     id: string;
@@ -9,6 +12,9 @@ interface IModalProps {
 }
 
 const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
+
+    const user = useSelector((state: any) => state.user);
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
@@ -39,7 +45,13 @@ const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
     const updateHandler = (): void => {
         const data = { image: file }
         api.fetchData(`putUser/${id}`, token, data, null)
-            .then(() => location.reload());
+            .then(() => {
+                api.fetchData(`getUser/${user.id}`, user.token, null, null)
+                    .then(data => {
+                        dispatch(updatePicturePath(data.picture_path));                
+                        location.reload();
+                    });
+            });
     }
 
     return (

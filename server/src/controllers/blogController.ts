@@ -6,12 +6,13 @@ import fs from "fs";
 import { IUser } from "../types/models/userTypes";
 import Bookmark from "../models/bookmarkModel";
 import { IBookmark } from "../types/models/bookmarkTypes";
+import Comment from "../models/commentModel";
 
 // @desc Get blogs
 // @route GET /api/blog/
 // @access private
 export const getBlogs: Handler = async (req, res) => {
-    const { limit = 6, offset = 0, sort = "_id", sortType = "ASC", authorId, excludeBlogId, userId, onlyBookmarks, name } = req.query;
+    const { limit = 6, offset = 0, sort = "_id", sortType = "ASC", authorId, excludeBlogId, userId, onlyBookmarks, onlyComments, name } = req.query;
     let query = {};
     if (authorId) // query settings
         query = (excludeBlogId) ? { _id: { $ne: excludeBlogId }, authorId: authorId } : { authorId };
@@ -19,6 +20,13 @@ export const getBlogs: Handler = async (req, res) => {
         const bookmarks: IBookmark[] | null = await Bookmark.find({ userId });
         if(bookmarks) {
             const blogIds: IBookmark['blogId'][] = bookmarks.map(bookmark => bookmark.blogId);
+            query = { _id: blogIds };
+        }
+    }
+    else if(onlyComments) {
+        const comments: IComment[] | null = await Comment.find({ userId });
+        if(comments) {
+            const blogIds: IComment['blogId'][] = comments.map(comment => comment.blogId);
             query = { _id: blogIds };
         }
     }

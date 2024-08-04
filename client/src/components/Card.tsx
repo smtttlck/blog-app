@@ -4,6 +4,7 @@ import { FaRegBookmark as UnBookmared, FaBookmark as Bookmared, FaRegComment as 
 import { useState } from "react";
 import * as api from "../api/Api";
 import { useSelector } from "react-redux";
+import { dateToString, pathForPicture } from "../utils/helperFuncs";
 
 interface ICardProps extends IBlog {
     userId: string;
@@ -47,14 +48,14 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                                         </span> :
                                         typeof authorId !== "string" && authorId.picture_path &&
                                         <span className="profile-picture">
-                                            <img src={`http://localhost:3001/${authorId.picture_path.split("public\\")[1].split("\\").join('/')}`} />
+                                            <img src={pathForPicture(authorId.picture_path)} />
                                         </span>
                                     }
                                 </div>
                                 <div className="user-info d-flex flex-column my-auto">
                                     {typeof authorId !== "string" && <small className="username text-body-secondary"><b>{authorId.username}</b></small>}
                                     <small className="subText text-body-secondary">
-                                        <span className="updatedAt">{updatedAt.toString().split("T")[0]}</span> ·
+                                        <span className="updatedAt">{dateToString(updatedAt)}</span> ·
                                         <span className="comment-counter">
                                             <span className="icon ms-2 me-1 fs-5"><Comment /></span>
                                             <b>{commentCounter}</b>

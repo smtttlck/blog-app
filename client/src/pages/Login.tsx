@@ -15,7 +15,7 @@ const Login = () => {
   }, [])
 
   return (
-    <main className="page d-flex justify-content-center">
+    <main className="login d-flex justify-content-center">
       <Form />
     </main>
   )

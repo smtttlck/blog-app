@@ -27,6 +27,7 @@ app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/blog", require("./routes/blogRoutes"));
 app.use("/api/bookmark", require("./routes/bookmarkRoutes"));
 app.use("/api/comment", require("./routes/commentRoutes"));
+app.use("/api/follow", require("./routes/followRoutes"));
 
 app.use(errorHandler); // error handling
 

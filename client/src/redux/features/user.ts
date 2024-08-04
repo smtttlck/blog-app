@@ -29,10 +29,13 @@ export const userSlice = createSlice({ // user slice
         },
         logout: () => {
             return initialState;
+        },
+        updatePicturePath: (state, action: PayloadAction<string>) => {
+            state.picture_path = action.payload;
         }
     }
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, updatePicturePath } = userSlice.actions;
 
 export default userSlice.reducer;

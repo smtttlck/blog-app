@@ -42,10 +42,11 @@ const CreateBlog: React.FC<ICreateBlogProps> = ({ authorId, token }) => {
                 initialValues={blogValues}
                 onSubmit={async (values: createBlogType) => {
                     try {
-                        api.fetchData("postBlog", token, values, null);
-                        await api.fetchData("getBlog/", user.token, null, `?authorId=${user.id}&sort=createdAt&sortType=DESC&limit=1`)
-                            .then((data) => navigate(`/blog/${data[0]._id}`));
-                        
+                        api.fetchData("postBlog", token, values, null)
+                        .then(() => {
+                            api.fetchData("getBlog/", user.token, null, `?authorId=${user.id}&sort=createdAt&sortType=DESC&limit=1`)
+                            .then((data) => navigate(`/blog/${data[0]._id}`))
+                        });                        
                     } catch (err) {
                         console.log(err);
                     }

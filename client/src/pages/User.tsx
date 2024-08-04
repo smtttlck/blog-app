@@ -6,6 +6,8 @@ import * as api from "../api/Api";
 import IBlog from "../types/BlogTypes";
 import List from "../components/List";
 import Footer from "../components/Footer";
+import ProfileCard from "../components/ProfileCard";
+import IUser from "../types/UserTypes";
 
 const User = () => {
 
@@ -13,19 +15,26 @@ const User = () => {
 
     const { id } = useParams<string>();
 
-    const [count, setCount] = useState<number>();
     const [blogs, setBlogs] = useState<IBlog[] | null>(null);
     const [offset, setOffset] = useState<number>(0);
     const [isFetching, setIsFetching] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [counters, setCounters] = useState<any>({});
+    const [userInfo, setUserInfo] = useState<any>({});
 
     const loaderRef = useRef<HTMLDivElement | null>(null);
 
-
     useEffect(() => {
-        api.fetchData(`getBlog/count/${id}`, user.token, null, null)
-            .then(data => setCount(data));
-    }, [id])
+        const getCounters = async () => {
+            const blogCounter: number = await api.fetchData(`getBlog/count/${id}`, user.token, null, null);
+            const followerCounter: number = await api.fetchData(`getFollow/follower/${id}`, user.token, null, "?onlyCount=true");
+            const followingCounter: number = await api.fetchData(`getFollow/following/${id}`, user.token, null, "?onlyCount=true");
+            setCounters({ blogCounter, followerCounter, followingCounter });
+        }
+        getCounters();
+        api.fetchData(`getUser/${id}`, user.token, null, null)
+            .then((data: IUser) => setUserInfo({ username: data.username, picture_path: data.picture_path }));        
+    }, [id])    
 
     const fetchBlogs = async (offset: number) => {
         setIsFetching(true);
@@ -69,15 +78,12 @@ const User = () => {
             <Navbar />
 
             <div className="container">
-                {(blogs && typeof blogs?.[0]?.authorId !== "string") &&
-                    <div className="big-profile-picture text-center mt-3">
-                        <img src={(blogs[0].authorId.picture_path && blogs[0].authorId.picture_path !== "") ?
-                            `http://localhost:3001/${blogs[0].authorId.picture_path.split("public\\")[1].split("\\").join('/')}` :
-                            "/public/default-user.png"}
-                        />
-                        <h3>{`${count} Stories By ${blogs[0].authorId.username}`}</h3>
-                    </div>
-                }
+
+                <ProfileCard
+                    username={userInfo.username}
+                    picture_path={userInfo.picture_path}
+                    counters={counters}
+                />
 
                 <hr />
 

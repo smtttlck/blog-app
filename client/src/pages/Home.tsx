@@ -27,7 +27,7 @@ const Home = () => {
             .then(data => setNewPosts(data));
 
         // Most Bookmarked
-        api.fetchData("getBlog", user.token, null, `?sort=bookmarkCounter&sortType=DESC&limit=6`)
+        api.fetchData("getBlog", user.token, null, `?sort=bookmarkCounter&sortType=DESC&limit=6&userId=${user.id}`)
             .then(data => setTopPosts(data));
     }, [])
 
@@ -57,11 +57,13 @@ const Home = () => {
                 <List
                     title="Latest Published"
                     datas={newPosts}
+                    targetUrl="/explore?sort=createdAt"
                 />
 
                 <List
                     title="Most Bookmarked"
                     datas={topPosts}
+                    targetUrl="/explore?sort=bookmarkCounter"
                 />
 
             </div>

@@ -24,16 +24,17 @@ const Explore = () => {
 
     const query = useQuery();
     const searchName = query.get("name");
+    const sort = query.get("sort");
 
-    useEffect(() => {
+    useEffect(() => {console.log(blogs)
         setBlogs([]);
         setHasMore(true);
         setOffset(0);
-    }, [searchName])
+    }, [searchName, sort])
 
     const fetchBlogs = async (offset: number) => {
         setIsFetching(true);
-        const queryForFetch: string = `?limit=4&offset=${offset}${searchName ? `&name=${searchName}` : ""}`;
+        const queryForFetch: string = `?limit=4&offset=${offset}${sort ? `&sort=${sort}&sortType=DESC` : ""}${searchName ? `&name=${searchName}` : ""}&userId=${user.id}`;
         const data: IBlog[] = await api.fetchData("getBlog/", user.token, null, queryForFetch);
         if (data.length === 0)
             setHasMore(false);
