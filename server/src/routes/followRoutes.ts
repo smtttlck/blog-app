@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import asyncHandler from "express-async-handler";
 import validateTokenHandler from "../middlewares/validateTokenHandler";
-import { createFollow, deleteFollow, getFollowers, getFollowings } from "../controllers/followController";
+import { createFollow, deleteFollow, getFollow, getFollowers, getFollowings } from "../controllers/followController";
 
 const router: Router = express.Router();
 
@@ -9,6 +9,7 @@ router.use(asyncHandler(validateTokenHandler)); // token validation
 
 // private endpoints
 router.route('/')
+    .get(asyncHandler(getFollow))
     .post(asyncHandler(createFollow))
     .delete(asyncHandler(deleteFollow));
 router.route('/follower/:userId')

@@ -26,7 +26,8 @@ const Explore = () => {
     const searchName = query.get("name");
     const sort = query.get("sort");
 
-    useEffect(() => {console.log(blogs)
+    useEffect(() => {
+        document.title = "Blog App";
         setBlogs([]);
         setHasMore(true);
         setOffset(0);
@@ -83,6 +84,7 @@ const Explore = () => {
                     <><List
                         cardType="big"
                         datas={blogs}
+                        isFetching={isFetching}
                     />
                         <div ref={loaderRef} />
                     </>

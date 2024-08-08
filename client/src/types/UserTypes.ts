@@ -5,3 +5,8 @@ export default interface IUser {
     password: string;
     picture_path?: string;
 }
+
+export interface IFollow {
+    followerUserId: string;
+    followingUserId: string;
+}

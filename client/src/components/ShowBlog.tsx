@@ -38,7 +38,7 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                 option="deleteBlog"
             />
             }
-            <div className="blog py-4">
+            <div className={`blog py-4 ${operation === "edit" ? "mb-5" : ""}`}>
                 <div className="blog-img">
                     <img
                         className="img-fluids object-fit-scale"
@@ -70,7 +70,7 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                         <input 
                             ref={titleRef} defaultValue={title}
                             className="form-check fs-1 border-0 p-0" 
-                            type="text" name="title" 
+                            type="text" name="title"
                         />
                     }
                 </div>
@@ -106,7 +106,7 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                         <textarea 
                             ref={textRef} defaultValue={text}
                             className="form-check fs-1 border-0 p-0 w-100" 
-                            name="text" rows={10}
+                            name="text" rows={10} lang="en"
                         />
                     }
                 </div>

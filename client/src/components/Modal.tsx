@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import * as api from "../api/Api";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import IUser from "../types/UserTypes";
 import { updatePicturePath } from "../redux/features/user";
 
 interface IModalProps {

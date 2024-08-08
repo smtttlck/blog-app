@@ -16,6 +16,7 @@ const Home = () => {
     const [topPosts, setTopPosts] = useState<IBlog[]>([]);
 
     useEffect(() => {
+        document.title = "Blog App";
 
         if(localStorage.getItem("newUser")) {
             setIsNewUser(true);
@@ -58,12 +59,14 @@ const Home = () => {
                     title="Latest Published"
                     datas={newPosts}
                     targetUrl="/explore?sort=createdAt"
+                    isFetching={true}
                 />
 
                 <List
                     title="Most Bookmarked"
                     datas={topPosts}
                     targetUrl="/explore?sort=bookmarkCounter"
+                    isFetching={true}
                 />
 
             </div>

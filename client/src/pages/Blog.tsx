@@ -26,8 +26,10 @@ const Blog = () => {
             .then((data: IBlog) => {
                 setBlog(data);
                 if (data.authorId && typeof data.authorId !== "string")
-                    api.fetchData("getBlog/", user.token, null, `?authorId=${data.authorId._id}&excludeBlogId=${id}&limit=3`)
+                    api.fetchData("getBlog/", user.token, null, `?authorId=${data.authorId._id}&excludeBlogId=${id}&sort=bookmarkCounter&sortType=DESC&limit=3`)
                         .then((data: IBlog[]) => setOtherBlogs(data));
+                window.scrollTo(0, 0);
+                document.title = data.title;
         });
     }, [id])
 
@@ -68,6 +70,7 @@ const Blog = () => {
                             title="User's other blogs"
                             datas={otherBlogs}
                             targetUrl={`/user/${(blog && typeof blog.authorId !== "string") && blog.authorId._id}`}
+                            isFetching={true}
                         />
                     }
                 </div>

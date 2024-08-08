@@ -22,6 +22,7 @@ const Profile = () => {
     const loaderRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
+        document.title = user.username;
         const getCounters = async () => {
             const blogCounter: number = await api.fetchData(`getBlog/count/${user.id}`, user.token, null, null);
             const followerCounter: number = await api.fetchData(`getFollow/follower/${user.id}`, user.token, null, "?onlyCount=true");
@@ -57,7 +58,7 @@ const Profile = () => {
     useEffect(() => {
         if (hasMore)
             fetchBlogs(offset);
-    }, [offset, hasMore])
+    }, [offset, hasMore, blogType])
 
     const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
         const target = entries[0];
@@ -99,6 +100,7 @@ const Profile = () => {
 
                 <List
                     datas={blogs}
+                    isFetching={isFetching}
                 />
                 <div ref={loaderRef} />
 

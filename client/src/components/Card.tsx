@@ -39,7 +39,7 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                             <h5 className="card-title">{title}</h5>
                             <p className="card-text">{text}</p>
                         </Link>
-                        <Link to={`/user/${typeof authorId !== "string" && authorId._id}`}>
+                        <Link to={(typeof authorId !== "string" && authorId._id !== user.id) ? `/user/${authorId._id}` : "/profile"}>
                             <div className="author d-flex position-absolute bottom-0 mb-3">
                                 <div className="profile-picture me-3">
                                     {typeof authorId !== "string" && authorId.picture_path === "" ?

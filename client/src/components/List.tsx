@@ -9,9 +9,10 @@ interface IListProps {
     cardType?: string;
     targetUrl?: string;
     datas: IBlog[];
+    isFetching: boolean;
 }
 
-const List: React.FC<IListProps> = ({ title, cardType, targetUrl, datas }) => {
+const List: React.FC<IListProps> = ({ title, cardType, targetUrl, datas, isFetching }) => {
 
     const user = useSelector((state: any) => state.user);
 
@@ -52,7 +53,7 @@ const List: React.FC<IListProps> = ({ title, cardType, targetUrl, datas }) => {
                             isBookmarked={data.isBookmarked}
                             commentCounter={data.commentCounter}
                         />
-                    ) : <Loading />
+                    ) : (isFetching && <Loading />)
                 }
             </div>
 

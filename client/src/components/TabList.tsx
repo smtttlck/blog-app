@@ -10,7 +10,7 @@ const TabList: React.FC<ITabListProps> = ({ blogType, setBlogType }) => {
     const types: BlogType[] = ["blogs", "bookmarks", "comments"];
 
     return (
-        <div className="tablist d-flex justify-content-center my-2">
+        <div className="tablist d-flex justify-content-center mt-3 mb-4">
             <ul className="list-group list-group-horizontal">
                 {types.map((type) => (
                     <li

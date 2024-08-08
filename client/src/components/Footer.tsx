@@ -35,6 +35,7 @@ const Footer: React.FC = () => {
             <section className="pages">
                 <ul className="d-flex fs-5">
                     <li className="mx-2"><a href="/">Home</a></li>
+                    <li className="mx-2"><a href="/explore">Explore</a></li>
                     <li className="mx-2"><a href="/write">Write</a></li>
                     <li className="mx-2"><a href="/about">About</a></li>
                 </ul>

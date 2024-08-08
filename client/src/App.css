@@ -141,7 +141,7 @@ ul {
   width: 540px;
 }
 .bigCards .card {  
-  width: 90%;
+  width: 85%;
 }
 .card {
   height: 250px !important;
@@ -235,4 +235,11 @@ ul {
 /* Profile */
 .tablist .list-group-item {
   cursor: pointer;
+}
+
+.follow-button {
+  width: 90px;
+  height: 37px;
+  background-color: var(--green) !important;
+  color: var(--white) !important;
 }

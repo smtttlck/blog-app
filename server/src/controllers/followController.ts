@@ -9,7 +9,7 @@ import { IFollow } from "../types/models/followTypes";
 // @access private
 export const createFollow: Handler = async(req, res) => {
     const { followerUserId, followingUserId }: IFollow = req.body;
-    if(!followingUserId || !followingUserId) { // check fields
+    if(!followerUserId || !followingUserId) { // check fields
         res.status(400);
         throw new Error("All fields are mandatory");
     }
@@ -40,7 +40,7 @@ export const createFollow: Handler = async(req, res) => {
 // @access private
 export const deleteFollow: Handler = async(req, res) => {
     const { followerUserId, followingUserId }: IFollow = req.body;
-    if(!followingUserId || !followingUserId) { // check fields
+    if(!followerUserId || !followingUserId) { // check fields
         res.status(400);
         throw new Error("All fields are mandatory");
     }
@@ -60,6 +60,29 @@ export const deleteFollow: Handler = async(req, res) => {
         throw new Error("This user does not follow");
     }
     await follow.deleteOne(); // delete
+    res.status(200).json(follow);
+}
+
+// @desc Get follow
+// @route GET /api/follow/
+// @access private
+export const getFollow: Handler = async(req, res) => {
+    const { followerUserId, followingUserId } = req.query;
+    if(!followerUserId || !followingUserId) { // check fields
+        res.status(400);
+        throw new Error("All fields are mandatory");
+    }
+    const followerUser: IUser | null = await User.findById(followerUserId);
+    if(!followerUser) { // check follower user
+        res.status(400);
+        throw new Error("Follower user not found");
+    }
+    const followingUser: IUser | null = await User.findById(followingUserId);
+    if(!followingUser) { // check following user
+        res.status(400);
+        throw new Error("Following user not found");
+    }
+    const follow: IFollow | null = await Follow.findOne({ followerUserId, followingUserId });
     res.status(200).json(follow);
 }
 

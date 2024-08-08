@@ -21,6 +21,7 @@ const User = () => {
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [counters, setCounters] = useState<any>({});
     const [userInfo, setUserInfo] = useState<any>({});
+    const [isFollow, setIsFollow] = useState<boolean>(false);
 
     const loaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -33,7 +34,13 @@ const User = () => {
         }
         getCounters();
         api.fetchData(`getUser/${id}`, user.token, null, null)
-            .then((data: IUser) => setUserInfo({ username: data.username, picture_path: data.picture_path }));        
+            .then((data: IUser) => {
+                api.fetchData("getFollow/", user.token, null, `?followerUserId=${user.id}&followingUserId=${id}`)
+                .then(follow => {
+                    setIsFollow((follow) ? true : false);
+                    setUserInfo({ username: data.username, picture_path: data.picture_path });
+                })
+            });
     }, [id])    
 
     const fetchBlogs = async (offset: number) => {
@@ -82,6 +89,8 @@ const User = () => {
                 <ProfileCard
                     username={userInfo.username}
                     picture_path={userInfo.picture_path}
+                    isFollow={isFollow}
+                    setIsFollow={setIsFollow}
                     counters={counters}
                 />
 
@@ -92,6 +101,7 @@ const User = () => {
                         <List
                             cardType="big"
                             datas={blogs}
+                            isFetching={isFetching}
                         />
                         <div ref={loaderRef} />
                     </>
