@@ -7,5 +7,6 @@ export const colors = {
     black2: "#00000080",
     yellow: "#bfa580",
     green: "#398180",
-    red: "#C9575A",    
+    red: "#C9575A",
+    modalOverlay: "rgba(0, 0, 0, 0.5)",
 }

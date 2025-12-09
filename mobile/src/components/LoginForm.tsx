@@ -4,18 +4,55 @@ import { colors } from '../constants/color';
 import CheckBox from 'expo-checkbox';
 import { useState } from 'react';
 import fonts from '../constants/fonts';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/app/store';
+import { loginThunk, signupThunk } from '../redux/features/user';
+import { AntDesign as Icon } from '@expo/vector-icons';
+import CustomModal from './CustomModal';
 
 const LoginForm = () => {
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { loading, error, token } = useSelector((state: RootState) => state.user); // get auth state from redux store
 
     // state variables
     const [isLogin, setIsLogin] = useState(true); // toggle between login and sign up
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // show/hide password state
     const [rememberMe, setRememberMe] = useState(false); // remember me checkbox state
+    const [modalVisible, setModalVisible] = useState(false); // modal visibility state
+    const [modalMessage, setModalMessage] = useState(''); // modal message state
+
+    const handleLogin = () => { // handle login action
+        dispatch(loginThunk({ username, password })) // dispatch login thunk
+            .then(() => {
+                if (!token) {
+                    setModalVisible(true); // show modal on login failure
+                    setModalMessage(`Login Failed: \n ${error}`); // set modal message
+                }
+            });
+    };
+
+    const handleSignUp = () => { // handle sign up action
+        dispatch(signupThunk({ username, password, email })) // dispatch sign up thunk
+            .unwrap()
+            .catch((err) => {
+                setModalVisible(true); // show modal on sign up failure
+                setModalMessage(`Sign Up Failed: \n ${err}`); // set modal message
+            });
+    };
 
     return (
         <View style={globalStyles.container}>
+            {/* Modal for login failure */}
+            <CustomModal 
+                visible={modalVisible} 
+                setVisible={setModalVisible} 
+                isAutoClose={true} 
+                message={modalMessage}
+            />
             {/* Header Section with Logo */}
             <View style={styles.header}>
                 <Image
@@ -44,6 +81,7 @@ const LoginForm = () => {
                         style={styles.input}
                         value={username}
                         onChangeText={setUsername}
+                        autoCapitalize='none'
                     />
                 </View>
                 {!isLogin && ( // show email field only for Sign Up
@@ -53,6 +91,7 @@ const LoginForm = () => {
                             style={styles.input}
                             value={email}
                             onChangeText={setEmail}
+                            autoCapitalize='none'
                         />
                     </View>
                 )}
@@ -60,10 +99,21 @@ const LoginForm = () => {
                     <Text style={[globalStyles.text, styles.label]}>Password</Text>
                     <TextInput
                         style={styles.input}
-                        secureTextEntry={true}
+                        secureTextEntry={!showPassword}
                         value={password}
                         onChangeText={setPassword}
+                        autoCapitalize='none'
                     />
+                    <TouchableOpacity
+                        style={styles.icon}
+                        onPress={() => setShowPassword(!showPassword)}
+                    >
+                        <Icon
+                            name={showPassword ? "eye" : "eye-invisible"}
+                            size={fonts.size.xxl}
+                            color={showPassword ? colors.black : colors.black2}
+                        />
+                    </TouchableOpacity>
                 </View>
                 {isLogin && ( // show remember me checkbox only for Login
                     <View style={styles.rememberMe}>
@@ -79,7 +129,11 @@ const LoginForm = () => {
             </View>
             {/* Submit Button Section */}
             <View style={styles.submit}>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity
+                    style={styles.button}
+                    disabled={loading}
+                    onPress={() => { (isLogin) ? handleLogin() : handleSignUp() }}
+                >
                     <Text style={styles.buttonText}>
                         {isLogin ? 'Login' : 'Sign Up'}
                     </Text>
@@ -143,6 +197,11 @@ const styles = StyleSheet.create({
         borderColor: colors.black,
         width: '100%',
         marginTop: 5,
+    },
+    icon: {
+        position: 'absolute',
+        right: 0,
+        bottom: 10,
     },
     rememberMe: {
         flexDirection: 'row',
