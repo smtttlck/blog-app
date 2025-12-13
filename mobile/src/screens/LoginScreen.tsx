@@ -1,12 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 import LoginForm from '../components/LoginForm';
+import { globalStyles } from '../styles/globalStyles';
 
 const LoginScreen = () => {
   return (
-    <SafeAreaView>
+    <View style={globalStyles.container}>
       <LoginForm />
-    </SafeAreaView>
+    </View>
   )
 }
 

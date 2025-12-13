@@ -2,11 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { login, register } from "../../api/api";
 import { AuthState, ILoginValues, IRegisterValues, LoginResponse } from "../../types/LoginTypes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 
 const initialState: AuthState = { // initial authentication state
-  token: null,
-  loading: false,
-  error: null,
+    token: null,
+    user: null,
+    loading: false,
+    error: null,
 };
 
 export const loginThunk = createAsyncThunk<LoginResponse, ILoginValues>( // async thunk for login
@@ -14,8 +16,14 @@ export const loginThunk = createAsyncThunk<LoginResponse, ILoginValues>( // asyn
     async (payload, { rejectWithValue }) => {
         try {
             const data = await login(payload); // call login API
-            await AsyncStorage.setItem("userToken", data.token); // store token in async storage
-            return data; // return login response data
+            const decoded: any = jwtDecode(data.token); // decode JWT token
+            if (payload.rememberMe) // if remember me is checked
+                await AsyncStorage.setItem("userToken", data.token); // store token in async storage
+            return { // return login response data
+                token: data.token,
+                user: decoded.user,
+            };
+
         } catch (err: any) {
             return rejectWithValue(err.response?.data?.message || "Login failed");
         }
@@ -42,16 +50,22 @@ export const autoLoginThunk = createAsyncThunk<LoginResponse>( // async thunk fo
     "user/autoLogin",
     async (_, { rejectWithValue }) => {
         try {
-            const token = await AsyncStorage.getItem("userToken"); // get token from async storage
+            const token = await AsyncStorage.getItem("userToken");
+
             if (token) {
-                return { token }; // return token if exists
+                const decoded: any = jwtDecode(token); // decode JWT token
+
+                return {
+                    token,
+                    user: decoded.user,
+                };
             } else {
                 return rejectWithValue("No token found");
             }
         } catch (err: any) {
             return rejectWithValue("Auto login failed");
         }
-    } 
+    }
 );
 
 export const logoutThunk = createAsyncThunk( // async thunk for logout
@@ -79,13 +93,14 @@ const userSlice = createSlice({
             .addCase(loginThunk.fulfilled, (state, action) => { // login fulfilled
                 state.loading = false;
                 state.token = action.payload.token;
+                state.user = action.payload.user;
             })
             .addCase(loginThunk.rejected, (state, action) => { // login rejected
                 state.loading = false;
                 state.error = action.payload as string;
             });
-            // signup thunk cases
-            builder
+        // signup thunk cases
+        builder
             .addCase(signupThunk.pending, (state) => { // signup pending
                 state.loading = true;
                 state.error = null;
@@ -93,13 +108,14 @@ const userSlice = createSlice({
             .addCase(signupThunk.fulfilled, (state, action) => { // signup fulfilled
                 state.loading = false;
                 state.token = action.payload.token;
+                state.user = action.payload.user;
             })
             .addCase(signupThunk.rejected, (state, action) => { // signup rejected
                 state.loading = false;
                 state.error = action.payload as string;
-            });            
-            // auto login thunk cases
-            builder
+            });
+        // auto login thunk cases
+        builder
             .addCase(autoLoginThunk.pending, (state) => { // auto login pending
                 state.loading = true;
                 state.error = null;
@@ -107,13 +123,14 @@ const userSlice = createSlice({
             .addCase(autoLoginThunk.fulfilled, (state, action) => { // auto login fulfilled
                 state.loading = false;
                 state.token = action.payload.token;
+                state.user = action.payload.user;
             })
             .addCase(autoLoginThunk.rejected, (state, action) => { // auto login rejected
                 state.loading = false;
                 state.error = action.payload as string;
             });
-            // logout thunk cases
-            builder
+        // logout thunk cases
+        builder
             .addCase(logoutThunk.fulfilled, (state) => { // logout fulfilled
                 state.token = null;
             });

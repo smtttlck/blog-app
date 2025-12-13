@@ -2,6 +2,7 @@ export type Route<K extends keyof AuthStackParamList | keyof UserStackParamList>
     name: K; // name of the route
     component: React.ComponentType<any>; // component associated with the route
     isAuthRoute?: boolean; // optional flag to indicate if the route requires authentication
+    isTabRoute?: boolean; // optional flag to indicate if the route is a tab route
 };
 
 export type AuthStackParamList = { // parameters for auth stack
@@ -9,5 +10,10 @@ export type AuthStackParamList = { // parameters for auth stack
 }
 
 export type UserStackParamList = { // parameters for user stack
+    MainTabs: undefined; // no parameters for MainTabs navigator
     Home: undefined; // no parameters for Home screen
+}
+
+export type TabParamList = { // parameters for tab navigator
+    Home: undefined; // no parameters for Home tab
 }

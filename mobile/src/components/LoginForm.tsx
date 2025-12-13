@@ -26,7 +26,7 @@ const LoginForm = () => {
     const [modalMessage, setModalMessage] = useState(''); // modal message state
 
     const handleLogin = () => { // handle login action
-        dispatch(loginThunk({ username, password })) // dispatch login thunk
+        dispatch(loginThunk({ username, password, rememberMe })) // dispatch login thunk
             .then(() => {
                 if (!token) {
                     setModalVisible(true); // show modal on login failure

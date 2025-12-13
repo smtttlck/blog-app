@@ -9,4 +9,6 @@ export const colors = {
     green: "#398180",
     red: "#C9575A",
     modalOverlay: "rgba(0, 0, 0, 0.5)",
+    whiteOverlay: "rgba(255, 255, 255, 0.7)",
+    skeletonLight: "#E0E0E0",
 }

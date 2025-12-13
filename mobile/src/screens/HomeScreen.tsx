@@ -1,35 +1,57 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../redux/app/store';
-import { logoutThunk } from '../redux/features/user';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { globalStyles } from '../styles/globalStyles';
+import * as api from "../api/api";
+import TopBar from '../components/TopBar';
+import Composer from '../components/Composer';
+import Carousel from '../components/Carousel';
+import IBlog from '../types/BlogTypes';
 
 const HomeScreen = () => {
 
-    useEffect(() => {
-        const token = async () => {
-            return await AsyncStorage.getItem("userToken");
-        }
-        token().then((res) => {
-            console.log("Token:", res);
-        })
-    }, []);
+    const user = useSelector((state: any) => state.user);
 
-    
-  const dispatch = useDispatch<AppDispatch>();
+    // state for posts
+    const [newPosts, setNewPosts] = useState<IBlog[]>([]);
+    const [topPosts, setTopPosts] = useState<IBlog[]>([]);
+
+    useEffect(() => {
+
+        // Latest Published
+        api.fetchData("getBlog", user.token, `?sort=createdAt&sortType=DESC&limit=6&userId=${user.user?.id}`)
+            .then(data => setNewPosts(data));
+
+        // Most Bookmarked
+        api.fetchData("getBlog", user.token, `?sort=bookmarkCounter&sortType=DESC&limit=6&userId=${user.user?.id}`)
+            .then(data => setTopPosts(data));
+
+    }, [user.token, user.user?.id]);
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>HomeScreen</Text>
-            <TouchableOpacity
-                style={{ marginTop: 20, padding: 10, width: 100, backgroundColor: 'lightblue' }}
-                onPress={async () => {
-                    dispatch(logoutThunk());
-                }}
+        <View style={globalStyles.container}>
+
+            {/* Top Navigation Bar */}
+            <TopBar />
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
             >
-                <Text>Sign Out</Text>
-            </TouchableOpacity>
+
+                {/* Composer */}
+                <Composer />
+
+                {/* Carousels */}
+                <Carousel
+                    title="Latest Published"
+                    datas={newPosts}
+                />
+                <Carousel
+                    title="Most Bookmarked"
+                    datas={topPosts}
+                />
+
+            </ScrollView>
 
         </View>
     )

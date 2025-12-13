@@ -6,10 +6,13 @@ import { colors } from "../constants/color";
 export const globalStyles = StyleSheet.create({
     container: {
         backgroundColor: colors.white,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        flex: 1,
         height: '100%',
-        padding: 15,
+        width: '100%',
+        alignSelf: 'center',
+        paddingHorizontal: 15,
     },
     text: {
         fontFamily: fonts.fontFamily,

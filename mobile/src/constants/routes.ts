@@ -6,7 +6,8 @@ type RoutesType = Route<keyof AuthStackParamList | keyof UserStackParamList>[]; 
 
 // define route constants
 // each route includes name, component, and an optional isAuthRoute flag
+// tab routes are also marked with isTabRoute flag
 export const routes: RoutesType = [
-    { name: 'Login', component: LoginScreen, isAuthRoute: false },
-    { name: 'Home', component: HomeScreen, isAuthRoute: true },
+    { name: 'Login', component: LoginScreen, isAuthRoute: false, isTabRoute: false },
+    { name: 'Home', component: HomeScreen, isAuthRoute: true, isTabRoute: true },
 ];
