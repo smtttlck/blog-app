@@ -15,3 +15,16 @@ export default interface IBlog { // blog post interface
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface IComment extends Document { // comment interface
+    userId: {
+        _id: string;
+        username: string;
+        email: string;
+        picture_path: string;
+        __v: number;
+    };
+    blogId: string;
+    text: string;
+    createdAt: Date;
+}

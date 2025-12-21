@@ -1,6 +1,7 @@
-import { useNavigation } from "@react-navigation/native";
 import { ReactNode, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutThunk } from "../redux/features/user";
+import { AppDispatch } from "../redux/app/store";
 
 interface IAuthorizationProps {
     children: ReactNode;
@@ -8,15 +9,15 @@ interface IAuthorizationProps {
 
 const Authorization: React.FC<IAuthorizationProps> = ({ children }) => {
 
-    const navigation = useNavigation();
-
+    const dispatch = useDispatch<AppDispatch>();
     const { token } = useSelector((state: any) => state.user);
 
     useEffect(() => {
-        if (!token) { // if user is not logged in, navigate to Login screen
-            navigation.navigate("Login" as never);
+        if (!token) { 
+            // If token is lost during app usage, trigger logout
+            dispatch(logoutThunk());
         }
-    }, [token, navigation]);
+    }, [token, dispatch]);
 
     return <>{token && children}</>; // render children only if user is logged in
 }

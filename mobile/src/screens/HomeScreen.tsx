@@ -7,10 +7,14 @@ import TopBar from '../components/TopBar';
 import Composer from '../components/Composer';
 import Carousel from '../components/Carousel';
 import IBlog from '../types/BlogTypes';
+import { useNavigation } from '@react-navigation/native';
+import { UserStackNavigationProp } from '../types/NavigationTypes';
 
-const HomeScreen = () => {
+const HomeScreen: React.FC = () => {
 
     const user = useSelector((state: any) => state.user);
+
+    const navigation = useNavigation<UserStackNavigationProp>();
 
     // state for posts
     const [newPosts, setNewPosts] = useState<IBlog[]>([]);
@@ -45,10 +49,12 @@ const HomeScreen = () => {
                 <Carousel
                     title="Latest Published"
                     datas={newPosts}
+                    onPress={(blogId: string) => navigation.navigate('Blog', { blogId })}
                 />
                 <Carousel
                     title="Most Bookmarked"
                     datas={topPosts}
+                    onPress={(blogId: string) => navigation.navigate('Blog', { blogId })}
                 />
 
             </ScrollView>

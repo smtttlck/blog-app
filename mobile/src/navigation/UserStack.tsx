@@ -8,14 +8,25 @@ import Authorization from '../components/Authorization';
 const Stack = createNativeStackNavigator<UserStackParamList>();
 
 const UserStack: React.FC = () => {
+
+  // higher-order component to wrap components with Authorization
+  const WithAuth = (Component: React.ComponentType<any>) => (props: any) => (
+    <Authorization>
+      <Component {...props} />
+    </Authorization>
+  );
+
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
       initialRouteName="MainTabs"
     >
-      { // add TabNavigator as the main entry point
+      { // add TabNavigator as the main entry point - wrap with auth
         routes.some(route => route.isTabRoute) && (
-          <Stack.Screen name="MainTabs" component={TabNavigator} />
+          <Stack.Screen 
+            name="MainTabs" 
+            component={WithAuth(TabNavigator)} 
+          />
         )
       }
       { // mapping through routes that are not tab routes but require authentication
@@ -24,13 +35,8 @@ const UserStack: React.FC = () => {
             <Stack.Screen
               key={route.name}
               name={route.name as keyof UserStackParamList}
-            >
-              {() => ( // wrap route component with Authorization
-                <Authorization>
-                  <route.component />
-                </Authorization>
-              )}
-            </Stack.Screen>
+              component={WithAuth(route.component)} // wrap with Authorization
+            />
           ))
       }
     </Stack.Navigator>

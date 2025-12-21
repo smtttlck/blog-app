@@ -1,0 +1,123 @@
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
+import { colors } from '../constants/color';
+
+const ShowBlogSkeleton: React.FC = () => {
+    const fadeAnim = useRef(new Animated.Value(0.3)).current; // Animasyon için baştaki opacity değeri
+
+    useEffect(() => {
+        // Sonsuz bir döngü ile bir "yanıp sönme" animasyonu oluşturuyoruz
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(fadeAnim, {
+                    toValue: 1, // Opaklık 1'e gider
+                    duration: 1000, // 1 saniye sürer
+                    useNativeDriver: true, // Performans için native driver kullan
+                }),
+                Animated.timing(fadeAnim, {
+                    toValue: 0.3, // Opaklık geri 0.3'e iner
+                    duration: 1000, // 1 saniye sürer
+                    useNativeDriver: true,
+                }),
+            ]),
+        ).start();
+    }, [fadeAnim]);
+
+    return (
+        <View style={styles.container}>
+            {/* Blog Image Placeholder */}
+            <Animated.View style={[styles.imageSkeleton, { opacity: fadeAnim }]} />
+
+            {/* Blog Title Placeholder */}
+            <Animated.View style={[styles.titleSkeleton, { opacity: fadeAnim }]} />
+
+            {/* Author Info Placeholder */}
+            <View style={styles.profileContainer}>
+                <Animated.View style={[styles.profileImageSkeleton, { opacity: fadeAnim }]} />
+                <View style={styles.profileInfo}>
+                    <Animated.View style={[styles.profileNameSkeleton, { opacity: fadeAnim }]} />
+                    <Animated.View style={[styles.followButtonSkeleton, { opacity: fadeAnim }]} />
+                </View>
+                <Animated.View style={[styles.dateSkeleton, { opacity: fadeAnim }]} />
+            </View>
+
+            {/* Blog Text Placeholder */}
+            <Animated.View style={[styles.blogTextSkeleton, { opacity: fadeAnim }]} />
+            <Animated.View style={[styles.blogTextSkeleton, { opacity: fadeAnim }]} />
+            <Animated.View style={[styles.blogTextSkeletonShort, { opacity: fadeAnim }]} />
+        </View>
+    );
+};
+
+export default ShowBlogSkeleton;
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        height: '100%',
+    },
+    imageSkeleton: {
+        width: '100%',
+        height: 450,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    titleSkeleton: {
+        width: '70%',
+        height: 24,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 4,
+        marginBottom: 16,
+    },
+    profileContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+        paddingHorizontal: 5,
+    },
+    profileImageSkeleton: {
+        width: 50,
+        height: 50,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 25,
+        marginRight: 10,
+    },
+    profileInfo: {
+        flex: 1,
+    },
+    profileNameSkeleton: {
+        width: '60%',
+        height: 16,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 4,
+        marginBottom: 8,
+    },
+    followButtonSkeleton: {
+        width: '40%',
+        height: 16,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 10,
+    },
+    dateSkeleton: {
+        width: '30%',
+        height: 14,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 4,
+        marginLeft: 'auto',
+    },
+    blogTextSkeleton: {
+        width: '100%',
+        height: 18,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 4,
+        marginBottom: 10,
+    },
+    blogTextSkeletonShort: {
+        width: '70%',
+        height: 18,
+        backgroundColor: colors.skeletonLight,
+        borderRadius: 4,
+        marginBottom: 10,
+    },
+});

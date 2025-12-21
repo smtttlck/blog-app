@@ -9,16 +9,18 @@ import { Fontisto as Icon } from '@expo/vector-icons';
 
 interface ICardProps extends IBlog {
     userId: string;
+    onPress?: (blogId: string) => void;
 };
 
 const BlogCard: React.FC<ICardProps> = ({
     _id, authorId, title, text, picture_path,
-    updatedAt, userId, isBookmarked, commentCounter
+    updatedAt, userId, isBookmarked, commentCounter, onPress,
 }) => {
 
     return (
-        <TouchableOpacity style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={() => onPress?.(_id)}>
 
+            {/* Bookmark Button */}
             <TouchableOpacity style={styles.bookmarkButton}>
                 <Icon name={isBookmarked ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color="black" />
             </TouchableOpacity>

@@ -9,9 +9,10 @@ import CarouselSkeleton from './CarouselSketon';
 type CarouselProps = {
     title: string;
     datas: any[];
+    onPress: (blogId: string) => void;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ title, datas }) => {
+const Carousel: React.FC<CarouselProps> = ({ title, datas, onPress }) => {
     return (
         <View style={styles.container}>
 
@@ -46,6 +47,7 @@ const Carousel: React.FC<CarouselProps> = ({ title, datas }) => {
                         updatedAt={data.updatedAt}
                         isBookmarked={data.isBookmarked}
                         commentCounter={data.commentCounter}
+                        onPress={onPress}
                     />
                 )) : 
                 <CarouselSkeleton />
