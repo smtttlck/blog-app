@@ -9,17 +9,18 @@ import CarouselSkeleton from './CarouselSketon';
 type CarouselProps = {
     title: string;
     datas: any[];
-    onPress: (blogId: string) => void;
+    onPressCard: (blogId: string) => void;
+    onPressArrow?: (sort: string) => void;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ title, datas, onPress }) => {
+const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressArrow }) => {
     return (
         <View style={styles.container}>
 
             {/* Header Section */}
             <View style={styles.header}>
                 <Text style={[globalStyles.text, styles.title]}>{title}</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => onPressArrow?.(title)}>
                     <Icon name="arrow-right" size={fonts.size.xxl} color="black" />
                 </TouchableOpacity>
             </View>
@@ -47,7 +48,7 @@ const Carousel: React.FC<CarouselProps> = ({ title, datas, onPress }) => {
                         updatedAt={data.updatedAt}
                         isBookmarked={data.isBookmarked}
                         commentCounter={data.commentCounter}
-                        onPress={onPress}
+                        onPress={onPressCard}
                     />
                 )) : 
                 <CarouselSkeleton />

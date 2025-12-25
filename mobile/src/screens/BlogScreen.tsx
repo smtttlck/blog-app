@@ -95,7 +95,7 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
                         <Carousel
                             title="More from this author"
                             datas={otherBlogs}
-                            onPress={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                            onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                         />
                     )
                 }

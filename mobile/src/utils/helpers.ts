@@ -7,6 +7,8 @@ export const iconNameConverter = (routeName: string): keyof typeof MaterialCommu
     switch (routeName) {
         case 'Home':
             return 'home-outline';
+        case 'Discover':
+            return 'compass-outline';
         default:
             return 'circle-outline'; // default icon
     }
@@ -49,5 +51,15 @@ export const blogDateConverter = (dateString: string) => {
         return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
     } else {
         return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    }
+};
+
+// converts sort option from human-readable to API parameter
+export const sortOptionConverter = (sortOption: string) => {
+    switch (sortOption) {
+        case 'Latest Published':
+            return 'createdAt';
+        case 'Most Bookmarked':
+            return 'bookmarkCounter';
     }
 };

@@ -15,6 +15,7 @@ export type UserStackParamList = { // parameters for user stack
     MainTabs: undefined; // no parameters for MainTabs navigator
     Home: undefined; // no parameters for Home screen
     Blog: { blogId: string }; // parameters for Blog screen
+    Discover: { sort?: string }; // parameters for Discover screen
 }
 
 export type TabParamList = { // parameters for tab navigator

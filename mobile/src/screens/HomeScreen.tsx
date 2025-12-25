@@ -39,6 +39,7 @@ const HomeScreen: React.FC = () => {
             <TopBar />
 
             <ScrollView
+                contentContainerStyle={{ paddingBottom: 65 }}
                 showsVerticalScrollIndicator={false}
             >
 
@@ -49,12 +50,14 @@ const HomeScreen: React.FC = () => {
                 <Carousel
                     title="Latest Published"
                     datas={newPosts}
-                    onPress={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                    onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                    onPressArrow={() => navigation.navigate('Discover', { sort: 'Latest Published' })}
                 />
                 <Carousel
                     title="Most Bookmarked"
                     datas={topPosts}
-                    onPress={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                    onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                    onPressArrow={() => navigation.navigate('Discover', { sort: 'Most Bookmarked' })}
                 />
 
             </ScrollView>
