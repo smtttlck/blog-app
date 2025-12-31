@@ -60,9 +60,9 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
     }, [blogId])
 
     return (
-        
+
         // KeyboardAvoidingView to handle keyboard appearance
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             style={globalStyles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
@@ -83,10 +83,13 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
                 <ShowBlog
                     comments={comments}
                     {...blog}
+                    onPressProfile={(userId: string) => navigation.navigate('MainTabs', 
+                        { screen: 'Profile', params: { userId } } as any)
+                    }
                 />
 
                 {/* Comments section */}
-                <CommentBox 
+                <CommentBox
                     comments={comments}
                 />
 

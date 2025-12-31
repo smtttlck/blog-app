@@ -113,8 +113,8 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                         updatedAt={item.updatedAt}
                         isBookmarked={item.isBookmarked}
                         commentCounter={item.commentCounter}
-                        onPress={(blogId: string) => navigation.navigate('Blog', { blogId }
-                        )}
+                        onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
+                        onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -134,6 +134,9 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                         <Animated.View style={{ transform: [{ rotate: spin }] }}>
                             <Icon name="spinner" size={fonts.size.xxl * 2} style={styles.loadingIcon} />
                         </Animated.View>
+                        : (!hasMore && blogs && blogs.length > 0) ?
+                            <View style={styles.emptyFooter}>
+                            </View>
                         : null
                 }
                 style={styles.container}
@@ -160,5 +163,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginVertical: 100,
         color: colors.black,
+    },
+    emptyFooter: {
+        height: 65,
     },
 })

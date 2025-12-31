@@ -9,16 +9,17 @@ import { Fontisto as Icon } from '@expo/vector-icons';
 
 interface ICardProps extends IBlog {
     userId: string;
-    onPress?: (blogId: string) => void;
+    onPressCard?: (blogId: string) => void;
+    onPressProfile?: (userId: string) => void;
 };
 
 const BlogCard: React.FC<ICardProps> = ({
     _id, authorId, title, text, picture_path,
-    updatedAt, userId, isBookmarked, commentCounter, onPress,
+    updatedAt, userId, isBookmarked, commentCounter, onPressCard, onPressProfile
 }) => {
 
     return (
-        <TouchableOpacity style={styles.container} onPress={() => onPress?.(_id)}>
+        <TouchableOpacity style={styles.container} onPress={() => onPressCard?.(_id)}>
 
             {/* Bookmark Button */}
             <TouchableOpacity style={styles.bookmarkButton}>
@@ -48,22 +49,26 @@ const BlogCard: React.FC<ICardProps> = ({
 
             {/* Footer Section */}
             <View style={styles.footer}>
-                <Image
-                    style={styles.profileImage}
-                    source={
-                        (authorId?.picture_path && typeof authorId.picture_path === 'string') 
-                            ? { uri: profileImgPathConverter(authorId.picture_path) }
-                            : require('../../assets/images/default-blog.jpg') // default profile image
-                    }
-                />
+                <TouchableOpacity onPress={() => onPressProfile?.(authorId?._id)}>
+                    <Image
+                        style={styles.profileImage}
+                        source={
+                            (authorId?.picture_path && typeof authorId.picture_path === 'string')
+                                ? { uri: profileImgPathConverter(authorId.picture_path) }
+                                : require('../../assets/images/default-blog.jpg') // default profile image
+                        }
+                    />
+                </TouchableOpacity>
                 <View style={styles.profileContainer}>
-                    <Text
-                        style={[globalStyles.text, styles.profileUsername]}
-                        numberOfLines={1}
-                        ellipsizeMode='tail'
-                    >
-                        {authorId?.username || 'Unknown User'}
-                    </Text>
+                    <TouchableOpacity onPress={() => onPressProfile?.(authorId?._id)}>
+                        <Text
+                            style={[globalStyles.text, styles.profileUsername]}
+                            numberOfLines={1}
+                            ellipsizeMode='tail'
+                        >
+                            {authorId?.username || 'Unknown User'}
+                        </Text>
+                    </TouchableOpacity>
                     <View style={styles.profileSubText}>
                         <Text style={[globalStyles.text, styles.blogDate]}>
                             {blogDateConverter(updatedAt.toString())}

@@ -52,12 +52,14 @@ const HomeScreen: React.FC = () => {
                     datas={newPosts}
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Latest Published' })}
+                    onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
                 />
                 <Carousel
                     title="Most Bookmarked"
                     datas={topPosts}
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Most Bookmarked' })}
+                    onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
                 />
 
             </ScrollView>

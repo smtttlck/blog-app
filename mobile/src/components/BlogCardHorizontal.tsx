@@ -8,15 +8,16 @@ import { colors } from '../constants/color';
 
 interface ICardProps extends IBlog {
     userId: string;
-    onPress?: (blogId: string) => void;
+    onPressCard?: (blogId: string) => void;
+    onPressProfile?: (userId: string) => void;
 };
 
 const BlogCardHorizontal: React.FC<ICardProps> = ({
     _id, authorId, title, text, picture_path,
-    updatedAt, userId, isBookmarked, commentCounter, onPress,
+    updatedAt, userId, isBookmarked, commentCounter, onPressCard, onPressProfile,
 }) => {
     return (
-        <TouchableOpacity style={styles.card} onPress={() => onPress?.(_id)}>
+        <TouchableOpacity style={styles.card} onPress={() => onPressCard?.(_id)}>
 
             {/* Blog Image */}
             <Image
@@ -37,7 +38,7 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
                 <Text style={[globalStyles.text, styles.excerpt]} numberOfLines={3}>{text}</Text>
 
                 {/* Blog Meta */}
-                <View style={styles.profile}>
+                <TouchableOpacity style={styles.profile} onPress={() => onPressProfile?.(authorId._id)}>
                     <Image
                         style={styles.profileImage}
                         source={
@@ -55,7 +56,7 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
                             {authorId?.username || 'Unknown User'}
                         </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
 
                 {/* Footer Section */}
                 <View style={styles.footer}>

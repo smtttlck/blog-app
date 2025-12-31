@@ -3,20 +3,20 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { colors } from '../constants/color';
 
 const ShowBlogSkeleton: React.FC = () => {
-    const fadeAnim = useRef(new Animated.Value(0.3)).current; // Animasyon için baştaki opacity değeri
+    const fadeAnim = useRef(new Animated.Value(0.3)).current; // initial opacity value
 
     useEffect(() => {
-        // Sonsuz bir döngü ile bir "yanıp sönme" animasyonu oluşturuyoruz
+        // Fade in and out animation
         Animated.loop(
             Animated.sequence([
                 Animated.timing(fadeAnim, {
-                    toValue: 1, // Opaklık 1'e gider
-                    duration: 1000, // 1 saniye sürer
-                    useNativeDriver: true, // Performans için native driver kullan
+                    toValue: 1,
+                    duration: 1000,
+                    useNativeDriver: true,
                 }),
                 Animated.timing(fadeAnim, {
-                    toValue: 0.3, // Opaklık geri 0.3'e iner
-                    duration: 1000, // 1 saniye sürer
+                    toValue: 0.3,
+                    duration: 1000,
                     useNativeDriver: true,
                 }),
             ]),

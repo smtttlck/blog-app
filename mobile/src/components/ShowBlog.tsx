@@ -9,9 +9,10 @@ import { Fontisto as Icon } from '@expo/vector-icons';
 
 interface ShowBlogProps extends Partial<IBlog> {
     comments: IComment[] | null;
+    onPressProfile?: (userId: string) => void;
 }
 
-const ShowBlog: React.FC<ShowBlogProps> = ({ comments, ...blog }) => {
+const ShowBlog: React.FC<ShowBlogProps> = ({ comments, onPressProfile, ...blog }) => {
 
     return (
         blog?.title ? (
@@ -37,13 +38,18 @@ const ShowBlog: React.FC<ShowBlogProps> = ({ comments, ...blog }) => {
                 {/* Author Info */}
                 <View style={styles.profileContainer}>
 
-                    <Image
-                        source={{ uri: profileImgPathConverter(blog.authorId?.picture_path as string) }}
-                        style={styles.profileImageSmall}
-                        resizeMode="cover"
-                    />
+                    <TouchableOpacity onPress={() => onPressProfile?.(blog.authorId?._id as string)}>
+                        <Image
+                            source={{ uri: profileImgPathConverter(blog.authorId?.picture_path as string) }}
+                            style={styles.profileImageSmall}
+                            resizeMode="cover"
+                        />
+                    </TouchableOpacity>
+
                     <View style={styles.profileInfo}>
-                        <Text style={[globalStyles.text, styles.profileName]}>{blog.authorId?.username}</Text>
+                        <TouchableOpacity onPress={() => onPressProfile?.(blog.authorId?._id as string)}>
+                            <Text style={[globalStyles.text, styles.profileName]}>{blog.authorId?.username}</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity style={styles.followButton}>
                             <Text style={[globalStyles.text, styles.followText]}>Follow</Text>
                         </TouchableOpacity>
