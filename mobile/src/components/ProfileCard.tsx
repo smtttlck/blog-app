@@ -5,6 +5,7 @@ import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 
 interface ProfileCardProps {
+    userId: string;
     username?: string;
     picture_path?: string;
     blogCounter?: number;
@@ -12,11 +13,15 @@ interface ProfileCardProps {
     followingCounter?: number;
     isFollow?: boolean;
     followButtonVisibility?: boolean;
+    followButtonDisabled?: boolean;
+    onPressFollowers?: () => void;
+    onPressFollowing?: () => void;
+    onPressFollowButton?: (id: string) => void;
 }
 
 const ProfileCard = ({
-    username, picture_path, blogCounter, followerCounter,
-    followingCounter, isFollow, followButtonVisibility = true
+    userId, username, picture_path, blogCounter, followerCounter, followingCounter, isFollow, 
+    followButtonVisibility = true, followButtonDisabled, onPressFollowers, onPressFollowing, onPressFollowButton
 }: ProfileCardProps) => {
     return (
         <View style={styles.profileCard}>
@@ -36,8 +41,12 @@ const ProfileCard = ({
                 {/* Follow Button */}
                 <TouchableOpacity
                     style={[styles.followButton,
-                    { display: followButtonVisibility ? 'flex' : 'contents', pointerEvents: followButtonVisibility ? 'auto' : 'none' }
-                    ]}>
+                    { display: followButtonVisibility ? 'flex' : 'contents', pointerEvents: followButtonVisibility ? 'auto' : 'none' },
+                    { backgroundColor: followButtonDisabled ? colors.grey : colors.yellow}
+                ]}
+                    onPress={() => onPressFollowButton && onPressFollowButton(userId)}
+                    disabled={followButtonDisabled}
+                >
                     <Text style={[globalStyles.text, styles.buttonText]}>{isFollow ? "Unfollow" : "Follow"}</Text>
                 </TouchableOpacity>
             </View>
@@ -48,14 +57,14 @@ const ProfileCard = ({
                     <Text style={styles.counterNumber}>{blogCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Blogs</Text>
                 </View>
-                <View style={styles.counter}>
+                <TouchableOpacity style={styles.counter} onPress={onPressFollowers}>
                     <Text style={styles.counterNumber}>{followerCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Followers</Text>
-                </View>
-                <View style={styles.counter}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.counter} onPress={onPressFollowing}>
                     <Text style={styles.counterNumber}>{followingCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Following</Text>
-                </View>
+                </TouchableOpacity>
             </View>
 
         </View>
@@ -97,7 +106,6 @@ const styles = StyleSheet.create({
         width: 85,
         alignItems: 'center',
         paddingVertical: 8,
-        backgroundColor: colors.yellow,
         borderRadius: 20,
     },
     buttonText: {

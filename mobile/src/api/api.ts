@@ -2,7 +2,7 @@ import axios from "axios";
 import { ILoginValues, IRegisterValues, LoginResponse } from "../types/LoginTypes";
 
 // data fetch functions
-export const fetchData = async (fetchString: string, token: string, queryString: string | null) => {
+export const fetchData = async (fetchString: string, token: string, queryString: string | null, data: any = null) => {
 
     const params: string[] = fetchString.split(/(?=[A-Z])/);
     let urlParams: string = params[1].toLowerCase(); // for table name
@@ -16,8 +16,12 @@ export const fetchData = async (fetchString: string, token: string, queryString:
     axios.defaults.headers.common['authorization'] = `Bearer ${token}`;
 
     switch (params[0]) { // fetch
-        case "get":
+        case "get": // get request
             return axios.get(url).then(response => response.data);
+        case "post": // post request
+            return axios.post(url, data);
+        case "delete": // delete request
+            return axios.delete(url, { data });
     } 
 }
 

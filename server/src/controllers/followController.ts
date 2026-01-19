@@ -98,8 +98,8 @@ export const getFollowers: Handler = async(req, res) => {
     }
     
     const follows: IFollow[] | number | null = (onlyCount) ? 
-        (await Follow.find({ followerUserId: req.params.userId })).length : 
-        (await Follow.find({ followerUserId: req.params.userId }));
+        (await Follow.find({ followingUserId: req.params.userId })).length : 
+        (await Follow.find({ followingUserId: req.params.userId }));
     res.status(200).json(follows);
 }
 
@@ -113,8 +113,8 @@ export const getFollowings: Handler = async(req, res) => {
         res.status(400);
         throw new Error("User not found");
     }
-    const follows: IFollow[] | number | null = (onlyCount) ? 
-        (await Follow.find({ followingUserId: req.params.userId })).length : 
-        (await Follow.find({ followingUserId: req.params.userId }));
+    const follows: IFollow[] | number | null = (onlyCount) ?         
+        (await Follow.find({ followerUserId: req.params.userId })).length : 
+        (await Follow.find({ followerUserId: req.params.userId }));
     res.status(200).json(follows);
 }

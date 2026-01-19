@@ -33,6 +33,8 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
     const [blog, setBlog] = useState<IBlog | null>(null); // state for blog data
     const [comments, setComments] = useState<IComment[] | null>(null); // state for comments
     const [otherBlogs, setOtherBlogs] = useState<IBlog[] | null>(null); // state for user's other blogs
+    const [isFollowing, setIsFollowing] = useState<boolean>(false); // state for follow status
+    const [followButtonDisabled, setFollowButtonDisabled] = useState<boolean>(false); // to disable follow button during API call
 
     useEffect(() => {
         // fetch blog data
@@ -47,6 +49,14 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
                         `?authorId=${data.authorId._id}&excludeBlogId=${blogId}&sort=bookmarkCounter&sortType=DESC&limit=3`)
                         .then(otherBlogsData => setOtherBlogs(otherBlogsData));
                 }
+                // check if the current user is following the blog author
+                if (data && data.authorId?._id && typeof data.authorId?._id === 'string') {
+                    api.fetchData(
+                        `getFollow/`,
+                        user.token,
+                        `?followerUserId=${user.user?.id}&followingUserId=${data?.authorId?._id}`)
+                        .then((follow) => setIsFollowing(!!follow));
+                }
             });
 
         scrollViewRef.current?.scrollTo({ y: 0, animated: true }); // scroll to top when blogId changes
@@ -58,6 +68,19 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
         api.fetchData(`getComment/${blogId}`, user.token, null)
             .then(data => setComments(data));
     }, [blogId])
+
+    const handleFollowToggle = (id: string): void => { // handle follow/unfollow button press
+        setFollowButtonDisabled(true);
+        api.fetchData(
+            `${isFollowing ? "delete" : "post"}Follow`,
+            user.token,
+            null,
+            { followerUserId: user.user?.id, followingUserId: id })
+            .then(() => {
+                setIsFollowing(!isFollowing);
+            })
+            .finally(() => setFollowButtonDisabled(false));
+    };
 
     return (
 
@@ -83,9 +106,11 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
                 <ShowBlog
                     comments={comments}
                     {...blog}
-                    onPressProfile={(userId: string) => navigation.navigate('MainTabs', 
-                        { screen: 'Profile', params: { userId } } as any)
-                    }
+                    onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
+                    isFollowing={isFollowing}
+                    setIsFollowing={setIsFollowing}
+                    followButtonDisabled={followButtonDisabled}
+                    onPressFollowButton={handleFollowToggle}
                 />
 
                 {/* Comments section */}

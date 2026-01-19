@@ -6,13 +6,23 @@ import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import ShowBlogSkeleton from './ShowBlogSkeleton';
 import { Fontisto as Icon } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
 interface ShowBlogProps extends Partial<IBlog> {
     comments: IComment[] | null;
     onPressProfile?: (userId: string) => void;
+    isFollowing?: boolean;
+    setIsFollowing?: (isFollowing: boolean) => void;
+    followButtonDisabled?: boolean;
+    onPressFollowButton?: (authorId: string) => void;
 }
 
-const ShowBlog: React.FC<ShowBlogProps> = ({ comments, onPressProfile, ...blog }) => {
+const ShowBlog: React.FC<ShowBlogProps> = ({
+    comments, onPressProfile, isFollowing, setIsFollowing,
+    followButtonDisabled, onPressFollowButton, ...blog
+}) => {
+
+    const user = useSelector((state: any) => state.user);
 
     return (
         blog?.title ? (
@@ -50,9 +60,20 @@ const ShowBlog: React.FC<ShowBlogProps> = ({ comments, onPressProfile, ...blog }
                         <TouchableOpacity onPress={() => onPressProfile?.(blog.authorId?._id as string)}>
                             <Text style={[globalStyles.text, styles.profileName]}>{blog.authorId?.username}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.followButton}>
-                            <Text style={[globalStyles.text, styles.followText]}>Follow</Text>
-                        </TouchableOpacity>
+                        {user.user?.id !== blog.authorId?._id && (
+                            <TouchableOpacity
+                                style={[
+                                    styles.followButton,
+                                    { backgroundColor: followButtonDisabled ? colors.grey : colors.yellow }
+                                ]}
+                                onPress={() => onPressFollowButton?.(blog.authorId?._id as string)}
+                                disabled={followButtonDisabled}
+                            >
+                                <Text style={[globalStyles.text, styles.followText]}>
+                                    {isFollowing ? "Unfollow" : "Follow"}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                     <Text style={[globalStyles.text, styles.dateText]}>
                         {blogDateConverter(blog.createdAt?.toString() || '')}

@@ -1,4 +1,4 @@
-import { Animated, Easing, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Easing, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
 import React, { useEffect, useRef, useState } from 'react';
 import * as api from "../api/api";
@@ -39,11 +39,29 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
     const [userInfo, setUserInfo] = useState<any>({}); // to store user info
     const [isFollow, setIsFollow] = useState<boolean>(false); // to check if the logged in user follows this profile
     const [blogType, setBlogType] = useState<"blogs" | "bookmarks" | "comments">("blogs"); // to switch between blogs, bookmarks, comments
-    const [blogTypeChanged, setBlogTypeChanged] = useState<boolean>(false); // to track blog type change    
-
+    const [blogTypeChanged, setBlogTypeChanged] = useState<boolean>(false); // to track blog type change
+    const [buttonDisabled, setButtonDisabled] = useState<boolean>(false); // to disable follow button during API call
 
     const spinValue = useRef(new Animated.Value(0)).current; // for loading spinner animation
     const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);
+
+    const handleFollowToggle = (id: string): void => { // handle follow/unfollow button press
+        setButtonDisabled(true);
+        api.fetchData(
+            `${isFollow ? "delete" : "post"}Follow`,
+            user.token,
+            null,
+            { followerUserId: user.user?.id, followingUserId: id })
+            .then(() => {
+                setIsFollow(!isFollow);
+                // update follower counter
+                setCounters((prevCounters: any) => ({
+                    ...prevCounters,
+                    followerCounter: isFollow ? prevCounters.followerCounter - 1 : prevCounters.followerCounter + 1
+                }));
+            })
+            .finally(() => setButtonDisabled(false));
+    };
 
     useEffect(() => { // loading spinner animation
         if (isFetching || blogTypeChanged) {
@@ -186,6 +204,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                         {/* Profile Card */}
                         {(userInfo && Object.keys(userInfo).length > 0 && counters && Object.keys(counters).length > 0) ? (
                             <ProfileCard
+                                userId={userId}
                                 username={userInfo?.username}
                                 picture_path={userInfo?.picture_path}
                                 blogCounter={counters?.blogCounter}
@@ -193,6 +212,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                                 followingCounter={counters?.followingCounter}
                                 isFollow={isFollow}
                                 followButtonVisibility={userId !== user.user?.id}
+                                followButtonDisabled={buttonDisabled}
+                                onPressFollowers={() => navigation.navigate('Connections', { userId, connectionType: 'follower' })}
+                                onPressFollowing={() => navigation.navigate('Connections', { userId, connectionType: 'following' })}
+                                onPressFollowButton={handleFollowToggle}
                             />
                         ) : (
                             <ProfileCardSkeleton />

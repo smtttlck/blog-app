@@ -17,12 +17,14 @@ export type UserStackParamList = { // parameters for user stack
     Blog: { blogId: string }; // parameters for Blog screen
     Discover: { sort?: string }; // parameters for Discover screen
     Profile: { userId: string }; // parameters for Profile screen
+    MyProfile: undefined; // no parameters for MyProfile screen
+    Connections: { userId: string; connectionType: 'follower' | 'following' }; // parameters for Connections screen
 }
 
 export type TabParamList = { // parameters for tab navigator
     Home: undefined; // no parameters for Home tab
     Discover: undefined; // no parameters for Discover tab
-    Profile: { userId?: string }; // parameters for Profile tab
+    MyProfile: undefined; // no parameters for MyProfile tab
 }
 
 // navigation prop type for user stack

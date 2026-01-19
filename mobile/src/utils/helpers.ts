@@ -9,7 +9,7 @@ export const iconNameConverter = (routeName: string): keyof typeof MaterialCommu
             return 'home-outline';
         case 'Discover':
             return 'compass-outline';
-        case 'Profile':
+        case 'MyProfile':
             return 'account-circle-outline';
         default:
             return 'circle-outline'; // default icon
