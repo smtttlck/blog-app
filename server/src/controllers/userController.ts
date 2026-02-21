@@ -1,6 +1,6 @@
 import { Handler } from "express";
 import User from "../models/userModel";
-import { IUser } from "../types/models/userTypes";
+import { IUser, IUserForUpdatePassword } from "../types/models/userTypes";
 import fs from "fs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -14,8 +14,8 @@ import { IBlog } from "../types/models/blogTypes";
 // @access private
 export const getUser: Handler = async (req, res) => {
     const user: IUser | null = await User.findById(req.params.id); // get one
-    if(user?.picture_path && user.picture_path !== "") // picture path convert for browser
-            user.picture_path = `http://localhost:${process.env.PORT}/${user.picture_path.split("public\\")[1].split("\\").join('/')}`;
+    if (user?.picture_path && user.picture_path !== "") // picture path convert for browser
+        user.picture_path = `http://localhost:${process.env.PORT}/${user.picture_path.split("public\\")[1].split("\\").join('/')}`;
     res.status(200).json(user);
 }
 
@@ -73,8 +73,8 @@ export const updateUser: Handler = async (req, res) => {
             throw new Error("This email is already registered");
         }
     }
-    if (req.file) { // is there a new file?
-        if (user.picture_path != "") // is there a old file?
+    if (req.file) { // for image file
+        if (user.picture_path != "") // delete old picture
             fs.unlinkSync(user.picture_path as string);
         req.body.picture_path = req.file.path;
     }
@@ -98,10 +98,10 @@ export const deleteUser: Handler = async (req, res) => {
     if (user.picture_path !== "") // delete picture
         fs.unlinkSync(user.picture_path as string);
     const bookmarks: IBookmark[] | null = await Bookmark.find({ userId: user._id });
-    if(bookmarks.length > 0) // delete bookmarks
+    if (bookmarks.length > 0) // delete bookmarks
         await Bookmark.deleteMany({ userId: user._id });
     const blogs: IBlog[] | null = await Blog.find({ authorId: user._id });
-    if(blogs.length > 0) // delete blogs
+    if (blogs.length > 0) // delete blogs
         await Blog.deleteMany({ authorId: user._id });
     await user.deleteOne(); // delete
     res.status(200).json(user);
@@ -118,7 +118,7 @@ export const loginUser: Handler = async (req, res) => {
     }
     const user: IUser | null = await User.findOne({ username }); // get one
     if (user && await bcrypt.compare(password, user.password)) {
-        if(user.picture_path && user.picture_path !== "") // picture path convert for browser
+        if (user.picture_path && user.picture_path !== "") // picture path convert for browser
             user.picture_path = `http://localhost:${process.env.PORT}/${user.picture_path.split("public\\")[1].split("\\").join('/')}`;
         const token = jwt.sign({ // create token
             user: {
@@ -139,5 +139,32 @@ export const loginUser: Handler = async (req, res) => {
         throw new Error("Username or password not valid");
     }
 
+    res.status(200).json(user);
+}
+
+// @desc Update user's password
+// @route PUT /api/user/:id/password
+// @access private
+export const updateUserPassword: Handler = async (req, res) => {
+    const { currentPassword, newPassword }: IUserForUpdatePassword = req.body;
+    if (!currentPassword || !newPassword) { // check fields
+        res.status(400);
+        throw new Error("All fields are mandatory");
+    }
+    const user: IUser | null = await User.findById(req.params.id); // get one
+    if (!user) { // check id
+        res.status(404);
+        throw new Error("User not found");
+    }
+    if (currentPassword) { // verify current password
+        const isMatch: boolean = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            res.status(401);
+            throw new Error("Current password is incorrect");
+        }
+    }
+    const hashedPassword: string = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save(); // save updated user
     res.status(200).json(user);
 }

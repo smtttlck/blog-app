@@ -3,6 +3,7 @@ import { imgPathConverter } from '../utils/helpers';
 import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
+import { Ionicons as Icon } from '@expo/vector-icons/';
 
 interface ProfileCardProps {
     userId: string;
@@ -17,11 +18,12 @@ interface ProfileCardProps {
     onPressFollowers?: () => void;
     onPressFollowing?: () => void;
     onPressFollowButton?: (id: string) => void;
+    onPressSettings?: () => void;
 }
 
 const ProfileCard = ({
-    userId, username, picture_path, blogCounter, followerCounter, followingCounter, isFollow, 
-    followButtonVisibility = true, followButtonDisabled, onPressFollowers, onPressFollowing, onPressFollowButton
+    userId, username, picture_path, blogCounter, followerCounter, followingCounter, isFollow, followButtonVisibility = true, 
+    followButtonDisabled, onPressFollowers, onPressFollowing, onPressFollowButton, onPressSettings
 }: ProfileCardProps) => {
     return (
         <View style={styles.profileCard}>
@@ -38,17 +40,26 @@ const ProfileCard = ({
                 {/* Username */}
                 <Text style={[globalStyles.text, styles.username]}>{username || "Username"}</Text>
 
-                {/* Follow Button */}
-                <TouchableOpacity
-                    style={[styles.followButton,
-                    { display: followButtonVisibility ? 'flex' : 'contents', pointerEvents: followButtonVisibility ? 'auto' : 'none' },
-                    { backgroundColor: followButtonDisabled ? colors.grey : colors.yellow}
-                ]}
-                    onPress={() => onPressFollowButton && onPressFollowButton(userId)}
-                    disabled={followButtonDisabled}
-                >
-                    <Text style={[globalStyles.text, styles.buttonText]}>{isFollow ? "Unfollow" : "Follow"}</Text>
-                </TouchableOpacity>
+                {followButtonVisibility ? (
+                    // Follow Button
+                    <TouchableOpacity
+                        style={[styles.followButton,
+                        { display: followButtonVisibility ? 'flex' : 'contents', pointerEvents: followButtonVisibility ? 'auto' : 'none' },
+                        { backgroundColor: followButtonDisabled ? colors.grey : colors.yellow }
+                        ]}
+                        onPress={() => onPressFollowButton && onPressFollowButton(userId)}
+                        disabled={followButtonDisabled}
+                    >
+                        <Text style={[globalStyles.text, styles.buttonText]}>{isFollow ? "Unfollow" : "Follow"}</Text>
+                    </TouchableOpacity>
+                ) : (
+                    // Setting button
+                    <TouchableOpacity
+                        onPress={onPressSettings}
+                    >
+                        <Icon name="settings-sharp" size={fonts.size.lg * 1.25} color={colors.black} />
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* Counters */}

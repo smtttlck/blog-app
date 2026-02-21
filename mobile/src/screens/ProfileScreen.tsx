@@ -216,6 +216,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                                 onPressFollowers={() => navigation.navigate('Connections', { userId, connectionType: 'follower' })}
                                 onPressFollowing={() => navigation.navigate('Connections', { userId, connectionType: 'following' })}
                                 onPressFollowButton={handleFollowToggle}
+                                onPressSettings={() => navigation.navigate('Settings')}
                             />
                         ) : (
                             <ProfileCardSkeleton />

@@ -1,4 +1,4 @@
-import { Blog, Connections, Discover, Home, Login, Profile, MyProfile } from "../screens";
+import { Blog, Connections, Discover, Home, Login, Profile, MyProfile, Settings } from "../screens";
 import { AuthStackParamList, Route, UserStackParamList } from "../types/NavigationTypes";
 
 type RoutesType = Route<keyof AuthStackParamList | keyof UserStackParamList>[]; // array of route objects
@@ -14,4 +14,5 @@ export const routes: RoutesType = [
     { name: 'Profile', component: Profile, isAuthRoute: true, isTabRoute: false },
     { name: 'MyProfile', component: MyProfile, isAuthRoute: true, isTabRoute: true },
     { name: 'Connections', component: Connections, isAuthRoute: true, isTabRoute: false },
+    { name: 'Settings', component: Settings, isAuthRoute: true, isTabRoute: false },
 ];

@@ -19,6 +19,7 @@ export type UserStackParamList = { // parameters for user stack
     Profile: { userId: string }; // parameters for Profile screen
     MyProfile: undefined; // no parameters for MyProfile screen
     Connections: { userId: string; connectionType: 'follower' | 'following' }; // parameters for Connections screen
+    Settings: undefined; // no parameters for Settings screen
 }
 
 export type TabParamList = { // parameters for tab navigator

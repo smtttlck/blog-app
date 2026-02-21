@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import asyncHandler from "express-async-handler";
 import { createMulter } from "../middlewares/multerConfig";
 import validateTokenHandler from "../middlewares/validateTokenHandler";
-import { createUser, deleteUser, getUser, updateUser, loginUser } from "../controllers/userController";
+import { createUser, deleteUser, getUser, updateUser, loginUser, updateUserPassword } from "../controllers/userController";
 
 const router: Router = express.Router();
 
@@ -21,5 +21,8 @@ router.route('/:id')
     .get(asyncHandler(getUser))
     .put(upload.single('image'), asyncHandler(updateUser))
     .delete(asyncHandler(deleteUser));
+
+    router.route('/:id/password')
+    .put(asyncHandler(updateUserPassword));
 
 module.exports = router;

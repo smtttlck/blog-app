@@ -10,6 +10,22 @@ export const fetchData = async (fetchString: string, token: string, queryString:
     if (queryString) // paramater for query
         urlParams += queryString
 
+    // convert form data(for image files)
+    if (fetchString.startsWith("putUser")) {
+        const formData = new FormData()
+        for (const key in data) {
+            if (key === 'picture_path' && data[key].startsWith('data:image')) {
+            const response = await fetch(data[key]);
+            const blob = await response.blob(); // convert base64 to blob
+            formData.append('image', blob, 'profile.jpg');
+        } else {
+            formData.append(key, data[key])
+        }
+        }
+        data = formData;
+        delete axios.defaults.headers.common['Content-Type'];
+    }
+
     const url: string = `http://${process.env.API_BASE_URL}/api/${urlParams}`; // fetch url
 
     // authorization add to headers
@@ -22,7 +38,9 @@ export const fetchData = async (fetchString: string, token: string, queryString:
             return axios.post(url, data);
         case "delete": // delete request
             return axios.delete(url, { data });
-    } 
+        case "put": // put request
+            return axios.put(url, data);
+    }
 }
 
 // login function

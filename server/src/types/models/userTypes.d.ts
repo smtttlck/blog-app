@@ -6,3 +6,8 @@ export interface IUser extends Document {
     password: string;
     picture_path?: string;
 }
+
+export interface IUserForUpdatePassword {
+    currentPassword: string;
+    newPassword: string;
+}
