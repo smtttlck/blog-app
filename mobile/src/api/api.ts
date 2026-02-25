@@ -10,36 +10,65 @@ export const fetchData = async (fetchString: string, token: string, queryString:
     if (queryString) // paramater for query
         urlParams += queryString
 
+    const authHeaders = { authorization: `Bearer ${token}` }; // authorization add to headers
+    let requestHeaders: Record<string, string> = authHeaders; // default headers
+
     // convert form data(for image files)
-    if (fetchString.startsWith("putUser")) {
+    if (fetchString.startsWith("putUser") || fetchString.startsWith("postBlog")) {
         const formData = new FormData()
+
         for (const key in data) {
-            if (key === 'picture_path' && data[key].startsWith('data:image')) {
-            const response = await fetch(data[key]);
-            const blob = await response.blob(); // convert base64 to blob
-            formData.append('image', blob, 'profile.jpg');
-        } else {
-            formData.append(key, data[key])
+            const value = data[key];
+
+            if (value === undefined || value === null)
+                continue;
+
+            if (fetchString.startsWith("putUser") && key === 'picture_path' && typeof value === 'string' && value.startsWith('data:image')) {
+                const response = await fetch(value);
+                const blob = await response.blob();
+                formData.append('image', blob, 'profile.jpg');
+                continue;
+            }
+
+            if (fetchString.startsWith("putUser") && key === 'image') {
+                formData.append('image', {
+                    uri: value.uri,
+                    name: value.name || 'profile.jpg',
+                    type: value.type || 'image/jpeg'
+                } as any);
+                continue;
+            }
+
+            if (fetchString.startsWith("postBlog") && key === 'image') {
+                formData.append('image', {
+                    uri: value.uri,
+                    name: value.name || 'blog.jpg',
+                    type: value.type || 'image/jpeg'
+                } as any);
+                continue;
+            }
+
+            formData.append(key, value)
         }
-        }
+
         data = formData;
-        delete axios.defaults.headers.common['Content-Type'];
+        requestHeaders = {
+            ...authHeaders,
+            'Content-Type': 'multipart/form-data'
+        };
     }
 
     const url: string = `http://${process.env.API_BASE_URL}/api/${urlParams}`; // fetch url
 
-    // authorization add to headers
-    axios.defaults.headers.common['authorization'] = `Bearer ${token}`;
-
     switch (params[0]) { // fetch
         case "get": // get request
-            return axios.get(url).then(response => response.data);
+            return axios.get(url, { headers: requestHeaders }).then(response => response.data);
         case "post": // post request
-            return axios.post(url, data);
+            return axios.post(url, data, { headers: requestHeaders });
         case "delete": // delete request
-            return axios.delete(url, { data });
+            return axios.delete(url, { data, headers: requestHeaders });
         case "put": // put request
-            return axios.put(url, data);
+            return axios.put(url, data, { headers: requestHeaders });
     }
 }
 

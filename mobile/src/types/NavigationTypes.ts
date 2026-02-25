@@ -1,4 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type Route<K extends keyof AuthStackParamList | keyof UserStackParamList> = { // generic route type
     name: K; // name of the route
@@ -12,7 +13,7 @@ export type AuthStackParamList = { // parameters for auth stack
 }
 
 export type UserStackParamList = { // parameters for user stack
-    MainTabs: undefined; // no parameters for MainTabs navigator
+    MainTabs: NavigatorScreenParams<TabParamList>; // nested tab navigator params
     Home: undefined; // no parameters for Home screen
     Blog: { blogId: string }; // parameters for Blog screen
     Discover: { sort?: string }; // parameters for Discover screen
@@ -20,12 +21,14 @@ export type UserStackParamList = { // parameters for user stack
     MyProfile: undefined; // no parameters for MyProfile screen
     Connections: { userId: string; connectionType: 'follower' | 'following' }; // parameters for Connections screen
     Settings: undefined; // no parameters for Settings screen
+    Write: { blogId?: string }; // optional parameters for Write screen
 }
 
 export type TabParamList = { // parameters for tab navigator
     Home: undefined; // no parameters for Home tab
     Discover: undefined; // no parameters for Discover tab
     MyProfile: undefined; // no parameters for MyProfile tab
+    Write: { blogId?: string }; // optional parameters for Write tab
 }
 
 // navigation prop type for user stack

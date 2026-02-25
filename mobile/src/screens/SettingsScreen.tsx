@@ -12,6 +12,7 @@ import CustomModal from '../components/CustomModal';
 import * as api from "../api/api";
 import { imgPathConverter } from '../utils/helpers';
 import * as ImagePicker from 'expo-image-picker';
+import { UploadImage } from '../types/ImageTypes';
 
 type SettingItemProps = {
     title: string;
@@ -28,6 +29,7 @@ const SettingsScreen: React.FC = () => {
 
     const [selectedSetting, setSelectedSetting] = useState<"editProfile" | "changePassword" | null>(null); // track selected setting
     const [imageUri, setImageUri] = useState<string | null>(null); // profile image URI state
+    const [image, setImage] = useState<UploadImage | null>(null); // profile image upload object
     const [username, setUsername] = useState(''); // username state
     const [currentPassword, setCurrentPassword] = useState(''); // current password state
     const [newPassword, setNewPassword] = useState(''); // new password state
@@ -67,13 +69,15 @@ const SettingsScreen: React.FC = () => {
             allowsEditing: true,
             aspect: [1, 1], // square aspect ratio
             quality: 0.8,
-            base64: true,
         });
 
         if (!result.canceled) {
             setImageUri(result.assets[0].uri);
-            const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`; // save in Base64 format
-            setImageUri(base64Image);
+            setImage({
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName || 'profile.jpg',
+                type: result.assets[0].mimeType || 'image/jpeg'
+            });
         }
     };
 
@@ -89,12 +93,15 @@ const SettingsScreen: React.FC = () => {
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.8,
-            base64: true,
         });
 
         if (!result.canceled) {
-            const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-            setImageUri(base64Image);
+            setImageUri(result.assets[0].uri);
+            setImage({
+                uri: result.assets[0].uri,
+                name: result.assets[0].fileName || 'profile.jpg',
+                type: result.assets[0].mimeType || 'image/jpeg'
+            });
         }
     };
 
@@ -159,7 +166,7 @@ const SettingsScreen: React.FC = () => {
         const newDatas = {}; // object to hold updated fields
         if (username !== user.user.username) Object.assign(newDatas, { username }); // add username if changed
         if (email !== user.user.email) Object.assign(newDatas, { email }); // add email if changed
-        if (imageUri && imageUri.startsWith('data:')) Object.assign(newDatas, { picture_path: imageUri }); // add picture if changed
+        if (image) Object.assign(newDatas, { image }); // add picture if changed
         if (Object.keys(newDatas).length === 0) { // check if any changes were made
             setModalMessage('No changes to save.');
             setModalVisible(true);

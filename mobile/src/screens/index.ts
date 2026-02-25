@@ -8,3 +8,4 @@ export { default as Profile } from './ProfileScreen';
 export { default as MyProfile } from './MyProfileScreen';
 export { default as Connections } from './ConnectionsScreen';
 export { default as Settings } from './SettingsScreen';
+export { default as Write } from './WriteScreen';

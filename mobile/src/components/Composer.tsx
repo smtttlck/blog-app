@@ -2,8 +2,13 @@ import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
+import { useNavigation } from '@react-navigation/native';
+import { UserStackNavigationProp } from '../types/NavigationTypes';
 
 const Composer: React.FC = () => {
+
+    const navigation = useNavigation<UserStackNavigationProp>();
+
     return (
         <View style={styles.container}>
 
@@ -25,7 +30,7 @@ const Composer: React.FC = () => {
             </View>
 
             {/* Button */}
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Write')}>
                 <Text style={[globalStyles.text, styles.buttonText]}>
                     Compose
                 </Text>

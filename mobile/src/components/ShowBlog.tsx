@@ -1,12 +1,15 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import IBlog, { IComment } from '../types/BlogTypes';
 import { colors } from '../constants/color';
 import { blogDateConverter, imgPathConverter, profileImgPathConverter } from '../utils/helpers';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import ShowBlogSkeleton from './ShowBlogSkeleton';
-import { Fontisto as Icon } from '@expo/vector-icons';
+import { Fontisto as Icon, Feather as Icon2 } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import * as api from "../api/api";
+import { UserStackNavigationProp } from '../types/NavigationTypes';
+import { useNavigation } from '@react-navigation/native';
 
 interface ShowBlogProps extends Partial<IBlog> {
     comments: IComment[] | null;
@@ -24,6 +27,32 @@ const ShowBlog: React.FC<ShowBlogProps> = ({
 
     const user = useSelector((state: any) => state.user);
 
+    const navigation = useNavigation<UserStackNavigationProp>();
+
+    const handlerDelete = () => { // delete button handler
+        Alert.alert(
+            "Delete Blog",
+            "Are you sure you want to delete this blog?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => { // call api to delete blog
+                        api.fetchData(`deleteBlog/${blog._id}`, user.token, null, null).then(() => {
+                            navigation.goBack(); // navigate back to the previous screen after deletion
+                        }).catch((err) => {
+                            alert(`Failed to delete blog: ${err}`); // show error message on failure
+                        });
+                    }
+                }
+            ]
+        );
+    }
+
     return (
         blog?.title ? (
             <View style={styles.container}>
@@ -39,8 +68,23 @@ const ShowBlog: React.FC<ShowBlogProps> = ({
                     {/* Blog Title */}
                     <Text style={[globalStyles.text, styles.title]}>{blog.title}</Text>
 
-                    {/* Action Buttons */}
-                    <TouchableOpacity style={styles.bookmarkButton}>
+                    {/* Edit & Delete Button (only show if the current user is the author) */}
+                    {user.user.id === blog.authorId?._id && (
+                        <>
+                            <TouchableOpacity
+                                style={[styles.editButton, styles.miniButton]}
+                                onPress={() => navigation.navigate('MainTabs', { screen: 'Write', params: { blogId: blog._id as string } })}
+                            >
+                                <Icon2 name={"edit"} size={fonts.size.xxl} color={colors.black} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.deleteButton, styles.miniButton]} onPress={handlerDelete}>
+                                <Icon name={"trash"} size={fonts.size.xxl} color={colors.black} />
+                            </TouchableOpacity>
+                        </>
+                    )}
+
+                    {/* Bookmark Button */}
+                    <TouchableOpacity style={[styles.bookmarkButton, styles.miniButton]}>
                         <Icon name={"bookmark"} size={fonts.size.xxl} color={colors.black} />
                     </TouchableOpacity>
                 </View>
@@ -110,11 +154,19 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         paddingHorizontal: 5,
     },
-    bookmarkButton: {
+    miniButton: {
         position: 'absolute',
-        top: 5,
-        right: 7,
+        top: 10,
         padding: 6,
+    },
+    editButton: {
+        right: 90,
+    },
+    deleteButton: {
+        right: 45,
+    },
+    bookmarkButton: {
+        right: 7,
     },
     profileContainer: {
         flexDirection: 'row',

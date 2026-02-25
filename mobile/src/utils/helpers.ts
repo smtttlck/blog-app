@@ -11,6 +11,8 @@ export const iconNameConverter = (routeName: string): keyof typeof MaterialCommu
             return 'compass-outline';
         case 'MyProfile':
             return 'account-circle-outline';
+        case 'Write':
+            return 'pencil-outline';
         default:
             return 'circle-outline'; // default icon
     }
