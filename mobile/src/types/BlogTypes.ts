@@ -16,7 +16,8 @@ export default interface IBlog { // blog post interface
     updatedAt: Date;
 }
 
-export interface IComment extends Document { // comment interface
+export interface IComment { // comment interface
+    _id?: string;
     userId: {
         _id: string;
         username: string;

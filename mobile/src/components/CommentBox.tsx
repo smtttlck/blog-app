@@ -9,10 +9,14 @@ import { IComment } from '../types/BlogTypes';
 import { useSelector } from 'react-redux';
 
 interface CommentBoxProps {
+    newComment: string; // new comment text
+    setNewComment: (text: string) => void; // function to set new comment text in parent component
     comments: IComment[] | null;
+    onCommentAdded?: (newComment: string) => void; // callback to notify parent component of new comment
+    onCommentDeleted?: (commentId: string) => void; // callback to notify parent component of deleted comment
 }
 
-const CommentBox: React.FC<CommentBoxProps> = ({ comments }) => {
+const CommentBox: React.FC<CommentBoxProps> = ({ comments, newComment, setNewComment, onCommentAdded, onCommentDeleted }) => {
 
     const user = useSelector((state: any) => state.user);
 
@@ -25,7 +29,7 @@ const CommentBox: React.FC<CommentBoxProps> = ({ comments }) => {
             <View style={styles.commentsSection}>
                 <Text style={[globalStyles.text, styles.commentsTitle]}>Comments</Text>
                 {comments && comments.map((comment, index) => (
-                    <CommentCard key={index} {...comment} />
+                    <CommentCard key={comment._id || index} {...comment} onCommentDeleted={onCommentDeleted} />
                 ))}
             </View>
 
@@ -42,8 +46,14 @@ const CommentBox: React.FC<CommentBoxProps> = ({ comments }) => {
                     placeholderTextColor={colors.grey}
                     multiline
                     returnKeyType="send"
+                    value={newComment}
+                    onChangeText={setNewComment}
                 />
-                <TouchableOpacity style={styles.sendButton}>
+                <TouchableOpacity style={styles.sendButton} onPress={() => {
+                    if (newComment.length > 0 && onCommentAdded) {
+                        onCommentAdded(newComment);
+                    }
+                }}>
                     <Icon name="arrow-up" size={fonts.size.xxl} color={colors.black} />
                 </TouchableOpacity>
             </View>

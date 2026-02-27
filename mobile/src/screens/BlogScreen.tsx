@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import * as api from "../api/api";
 import { useSelector } from 'react-redux';
 import IBlog, { IComment } from '../types/BlogTypes';
@@ -31,13 +31,13 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
 
     // state for blog data
     const [blog, setBlog] = useState<IBlog | null>(null); // state for blog data
+    const [newComment, setNewComment] = useState<string>(''); // state for new comment text
     const [comments, setComments] = useState<IComment[] | null>(null); // state for comments
     const [otherBlogs, setOtherBlogs] = useState<IBlog[] | null>(null); // state for user's other blogs
     const [isFollowing, setIsFollowing] = useState<boolean>(false); // state for follow status
     const [followButtonDisabled, setFollowButtonDisabled] = useState<boolean>(false); // to disable follow button during API call
 
-    useEffect(() => {
-        // fetch blog data
+    useEffect(() => { // fetch blog data
         api.fetchData(`getBlog/${blogId}`, user.token, null,)
             .then(data => {
                 setBlog(data);
@@ -82,6 +82,58 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
             .finally(() => setFollowButtonDisabled(false));
     };
 
+    const handleCommentAdded = (newComment: string) => { // handle new comment added
+        api.fetchData(`postComment`, user.token, null, { // send new comment data to API
+            userId: user.user?.id,
+            blogId,
+            text: newComment,
+        }).then((response: any) => { // on successful API response, add the new comment to the comments list
+            const lastComment: IComment = { // create a new comment object to add to the comments list
+                _id: response?.data?._id,
+                userId: {
+                    _id: user.user?.id || '',
+                    username: user.user?.username || '',
+                    email: user.user?.email || '',
+                    picture_path: user.user?.picture_path || '',
+                    __v: 0,
+                },
+                blogId,
+                text: newComment,
+                createdAt: new Date(),
+            }
+            setComments(prevComments => prevComments ? [lastComment, ...prevComments] : [lastComment]);
+            setNewComment('');
+        });
+    };
+
+    const handleCommentDeleted = (commentId: string) => {
+        Alert.alert(
+            "Delete Comment",
+            "Are you sure you want to delete this comment?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        api.fetchData('deleteComment', user.token, null, {
+                            _id: commentId,
+                            userId: user.user?.id,
+                            blogId
+                        }).then(() => {
+                            setComments(prevComments => prevComments ? prevComments.filter(comment => comment._id !== commentId) : null);
+                        }).catch((error) => {
+                            console.error("Error deleting comment:", error);
+                        });
+                    }
+                }
+            ]
+        );
+    };
+
     return (
 
         // KeyboardAvoidingView to handle keyboard appearance
@@ -115,7 +167,11 @@ const BlogScreen: React.FC<BlogScreenProps> = ({ route }) => {
 
                 {/* Comments section */}
                 <CommentBox
+                    newComment={newComment}
+                    setNewComment={setNewComment}
                     comments={comments}
+                    onCommentAdded={handleCommentAdded}
+                    onCommentDeleted={handleCommentDeleted}
                 />
 
                 { // Other blogs carousel if there are other blogs

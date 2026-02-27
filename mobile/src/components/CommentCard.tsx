@@ -1,17 +1,31 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IComment } from '../types/BlogTypes';
-import { blogDateConverter, profileImgPathConverter } from '../utils/helpers';
+import { blogDateConverter, imgPathConverter, profileImgPathConverter } from '../utils/helpers';
 import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
+import { Feather as Icon } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
-const CommentCard: React.FC<IComment> = ({ userId, blogId, text, createdAt }) => {
+interface CommentCardProps extends IComment {
+    onCommentDeleted?: (commentId: string) => void; // callback to notify parent component of deleted comment
+}
 
-    const profileImagePath = profileImgPathConverter(userId.picture_path); // Convert profile image path
-    
+const CommentCard: React.FC<CommentCardProps> = ({ _id, userId, text, createdAt, onCommentDeleted }) => {
+
+    const user = useSelector((state: any) => state.user);
+
+    let imgPath; // initialize imgPath variable
+    try {
+        imgPath = profileImgPathConverter(userId.picture_path); // convert profile image path
+    } catch {
+        imgPath = imgPathConverter(userId.picture_path); // fallback to old converter if new one fails
+    }
+    const profileImagePath = imgPath; // use the resolved image path
+
     return (
         <View style={styles.commentCard}>
-            
+
             <Image
                 source={profileImagePath ? { uri: profileImagePath } : require('../../assets/images/default-blog.jpg')}
                 style={styles.commentProfileImage}
@@ -19,12 +33,19 @@ const CommentCard: React.FC<IComment> = ({ userId, blogId, text, createdAt }) =>
             />
             <View style={styles.commentContent}>
                 <View style={styles.commentHeader}>
-                <Text style={[globalStyles.text, styles.userNameText]}>{userId.username}</Text>
-                <Text style={styles.commentDate}>{blogDateConverter(createdAt.toString())}</Text>
+                    <Text style={[globalStyles.text, styles.userNameText]}>{userId.username}</Text>
+                    <View style={styles.commentDateContainer}>
+                        {user.user?.id === userId._id &&  // only show delete button if the comment belongs to the current user
+                            <TouchableOpacity onPress={() => _id && onCommentDeleted && onCommentDeleted(_id)}>
+                                <Icon name="trash-2" size={fonts.size.lg} color={colors.red} />
+                            </TouchableOpacity>
+                        }
+                        <Text style={styles.commentDate}>{blogDateConverter(createdAt.toString())}</Text>
+                    </View>
                 </View>
                 <Text style={[globalStyles.text, styles.commentText]}>{text}</Text>
             </View>
-            
+
         </View>
     )
 }
@@ -53,6 +74,11 @@ const styles = StyleSheet.create({
     userNameText: {
         fontSize: fonts.size.sm,
         fontWeight: 'bold',
+    },
+    commentDateContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 7,
     },
     commentText: {
         fontSize: fonts.size.md,
