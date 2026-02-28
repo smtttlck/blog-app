@@ -32,11 +32,32 @@ const HomeScreen: React.FC = () => {
 
     }, [user.token, user.user?.id]);
 
+    const handlerBookmarksButton = () => { // navigate to Discover screen with onlyBookmarks filter
+        navigation.navigate('Discover', { onlyBookmarks: true });
+    }
+
+    const handlerBookmark = (
+        blogId: string, 
+        isBookmarked: boolean, 
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => { // toggle bookmark for a blog
+        setIsWaiting(true); // set waiting state to true while waiting for API response
+        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
+            blogId,
+            userId: user.user?.id
+        })
+        .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
+        .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
+    }
+
     return (
         <View style={globalStyles.container}>
 
             {/* Top Navigation Bar */}
-            <TopBar />
+            <TopBar 
+                onPressBookmarks={handlerBookmarksButton}
+            />
 
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 65 }}
@@ -53,6 +74,7 @@ const HomeScreen: React.FC = () => {
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Latest Published' })}
                     onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
+                    onPressBookmark={handlerBookmark}
                 />
                 <Carousel
                     title="Most Bookmarked"
@@ -60,6 +82,7 @@ const HomeScreen: React.FC = () => {
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Most Bookmarked' })}
                     onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
+                    onPressBookmark={handlerBookmark}
                 />
 
             </ScrollView>

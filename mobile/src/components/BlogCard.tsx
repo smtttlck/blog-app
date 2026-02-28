@@ -6,24 +6,37 @@ import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
 import { Fontisto as Icon } from '@expo/vector-icons';
+import { useState } from 'react';
 
 interface ICardProps extends IBlog {
     userId: string;
     onPressCard?: (blogId: string) => void;
     onPressProfile?: (userId: string) => void;
+    onPressBookmark?: (blogId: string, isBookmarked: boolean,
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => void;
 };
 
 const BlogCard: React.FC<ICardProps> = ({
-    _id, authorId, title, text, picture_path,
-    updatedAt, userId, isBookmarked, commentCounter, onPressCard, onPressProfile
+    _id, authorId, title, text, picture_path, updatedAt, userId, isBookmarked, commentCounter,
+    onPressCard, onPressProfile, onPressBookmark
 }) => {
 
+    const [isWaiting, setIsWaiting] = useState(false);
+    const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
+
     return (
+
         <TouchableOpacity style={styles.container} onPress={() => onPressCard?.(_id)}>
 
             {/* Bookmark Button */}
-            <TouchableOpacity style={styles.bookmarkButton}>
-                <Icon name={isBookmarked ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color="black" />
+            <TouchableOpacity
+                style={styles.bookmarkButton}
+                onPress={() => onPressBookmark?.(_id, isBookmarkedState as boolean, setIsWaiting, setIsBookmarkedState as React.Dispatch<React.SetStateAction<boolean>>)}
+                disabled={isWaiting} // disable button while waiting for API response
+            >
+                <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color="black" />
             </TouchableOpacity>
 
             {/* Blog Image */}

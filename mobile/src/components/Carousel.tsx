@@ -12,9 +12,13 @@ type CarouselProps = {
     onPressCard: (blogId: string) => void;
     onPressArrow?: (sort: string) => void;
     onPressProfile?: (userId: string) => void;
+    onPressBookmark?: (blogId: string, isBookmarked: boolean, 
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => void;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressArrow, onPressProfile }) => {
+const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressArrow, onPressProfile, onPressBookmark }) => {
     return (
         <View style={styles.container}>
 
@@ -51,6 +55,7 @@ const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressA
                         commentCounter={data.commentCounter}
                         onPressCard={onPressCard}
                         onPressProfile={onPressProfile}
+                        onPressBookmark={onPressBookmark}
                     />
                 )) : 
                 <CarouselSkeleton />

@@ -1,7 +1,12 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons as Icon } from '@expo/vector-icons';
+import fonts from '../constants/fonts';
 
-const TopBar: React.FC = () => {
+type TopBarProps = {
+    onPressBookmarks: () => void;
+}
+
+const TopBar: React.FC<TopBarProps> = ({ onPressBookmarks }) => {
     return (
         <View style={styles.container}>
             {/* Logo Image */ }
@@ -10,9 +15,9 @@ const TopBar: React.FC = () => {
                 style={styles.logo}
             />
             {/* Bookmark Icon */ }
-            <View>
-                <Icon name="bookmarks-outline" size={24} color="black" />
-            </View>
+            <TouchableOpacity onPress={onPressBookmarks}>
+                <Icon name="bookmarks-outline" size={fonts.size.xxl} color="black" />
+            </TouchableOpacity>
         </View>
     )
 }

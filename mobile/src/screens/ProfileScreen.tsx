@@ -63,6 +63,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
             .finally(() => setButtonDisabled(false));
     };
 
+    const handlerBookmark = (
+        blogId: string,
+        isBookmarked: boolean,
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => { // toggle bookmark for a blog
+        setIsWaiting(true); // set waiting state to true while waiting for API response
+        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
+            blogId,
+            userId: user.user?.id
+        })
+            .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
+            .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
+    }
+
     useEffect(() => { // loading spinner animation
         if (isFetching || blogTypeChanged) {
             if (!spinAnimation.current) {
@@ -194,6 +209,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                         commentCounter={item.commentCounter}
                         onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                         onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
+                        onPressBookmark={handlerBookmark}
                     />
                 )}
                 showsVerticalScrollIndicator={false}

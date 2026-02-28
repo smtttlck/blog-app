@@ -5,17 +5,27 @@ import { globalStyles } from '../styles/globalStyles';
 import { Fontisto as Icon } from '@expo/vector-icons';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
+import { useState } from 'react';
 
 interface ICardProps extends IBlog {
     userId: string;
     onPressCard?: (blogId: string) => void;
     onPressProfile?: (userId: string) => void;
+    onPressBookmark?: (blogId: string, isBookmarked: boolean,
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => void;
 };
 
 const BlogCardHorizontal: React.FC<ICardProps> = ({
-    _id, authorId, title, text, picture_path,
-    updatedAt, userId, isBookmarked, commentCounter, onPressCard, onPressProfile,
+    _id, authorId, title, text, picture_path, updatedAt, userId, isBookmarked, commentCounter,
+    onPressCard, onPressProfile, onPressBookmark,
 }) => {
+    
+
+    const [isWaiting, setIsWaiting] = useState(false);
+    const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
+
     return (
         <TouchableOpacity style={styles.card} onPress={() => onPressCard?.(_id)}>
 
@@ -71,8 +81,12 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.bookmarkButton}>
-                        <Icon name={isBookmarked ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color={colors.black} />
+                    <TouchableOpacity 
+                        style={styles.bookmarkButton}
+                        onPress={() => onPressBookmark?.(_id, isBookmarkedState as boolean, setIsWaiting, setIsBookmarkedState as React.Dispatch<React.SetStateAction<boolean>>)}
+                        disabled={isWaiting} // disable button while waiting for API response
+                    >
+                        <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color={colors.black} />
                     </TouchableOpacity>
 
                 </View>

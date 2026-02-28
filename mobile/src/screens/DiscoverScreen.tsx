@@ -17,6 +17,7 @@ interface DiscoverScreenProps {
     route: {
         params: {
             sort?: string;
+            onlyBookmarks?: boolean;
         }
     }
 }
@@ -66,14 +67,16 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
         setBlogs([]);
         setHasMore(true);
         setOffset(0);
-    }, [debouncedSearchQuery, route.params?.sort]);
+    }, [debouncedSearchQuery, route.params?.sort, route.params?.onlyBookmarks]);
 
     // fetch blogs function
     const fetchBlogs = async (offset: number) => {
         if (isFetching) return;
         setIsFetching(true);
         const fetchQuery: string =
-            `?limit=4&offset=${offset}&name=${debouncedSearchQuery}${route.params?.sort ? `&sort=${sortOptionConverter(route.params.sort)}&sortType=DESC` : ""}&userId=${user.user?.id}`;
+            route.params?.onlyBookmarks
+                ? `?limit=4&offset=${offset}&name=${debouncedSearchQuery}&onlyBookmarks=true&userId=${user.user?.id}`
+                : `?limit=4&offset=${offset}&name=${debouncedSearchQuery}${route.params?.sort ? `&sort=${sortOptionConverter(route.params.sort)}&sortType=DESC` : ""}&userId=${user.user?.id}`;
         const data: IBlog[] = await api.fetchData("getBlog/", user.token, fetchQuery) || [];
         if (data.length === 0)
             setHasMore(false);
@@ -92,6 +95,21 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
             setOffset(prevOffset => prevOffset + 4);
         }
     };
+
+    const handlerBookmark = (
+        blogId: string,
+        isBookmarked: boolean,
+        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
+    ) => { // toggle bookmark for a blog
+        setIsWaiting(true); // set waiting state to true while waiting for API response
+        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
+            blogId,
+            userId: user.user?.id
+        })
+            .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
+            .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
+    }
 
     return (
 
@@ -115,6 +133,7 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                         commentCounter={item.commentCounter}
                         onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                         onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
+                        onPressBookmark={handlerBookmark}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -124,7 +143,7 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                     <>
                         {/* Title and Search Input */}
                         <Text style={[globalStyles.text, styles.title]}>
-                            {route.params?.sort ? route.params.sort : 'Discover'}
+                            {route.params?.sort ? route.params.sort : (route.params?.onlyBookmarks ? 'Bookmarks' : 'Discover')}
                         </Text>
                         <SearchInput value={searchQuery} onChangeText={setSearchQuery} />
                     </>
@@ -137,7 +156,7 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                         : (!hasMore && blogs && blogs.length > 0) ?
                             <View style={styles.emptyFooter}>
                             </View>
-                        : null
+                            : null
                 }
                 style={styles.container}
             />

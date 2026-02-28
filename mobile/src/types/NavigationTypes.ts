@@ -16,7 +16,7 @@ export type UserStackParamList = { // parameters for user stack
     MainTabs: NavigatorScreenParams<TabParamList>; // nested tab navigator params
     Home: undefined; // no parameters for Home screen
     Blog: { blogId: string }; // parameters for Blog screen
-    Discover: { sort?: string }; // parameters for Discover screen
+    Discover: { sort?: string, onlyBookmarks?: boolean }; // parameters for Discover screen
     Profile: { userId: string }; // parameters for Profile screen
     MyProfile: undefined; // no parameters for MyProfile screen
     Connections: { userId: string; connectionType: 'follower' | 'following' }; // parameters for Connections screen
