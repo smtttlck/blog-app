@@ -1,27 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { colors } from '../constants/color';
+import { useSkeletonPulse } from '../hooks/useSkeletonPulse';
 
 const ShowBlogSkeleton: React.FC = () => {
-    const fadeAnim = useRef(new Animated.Value(0.3)).current; // initial opacity value
-
-    useEffect(() => {
-        // Fade in and out animation
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 1000,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(fadeAnim, {
-                    toValue: 0.3,
-                    duration: 1000,
-                    useNativeDriver: true,
-                }),
-            ]),
-        ).start();
-    }, [fadeAnim]);
+    
+    const fadeAnim = useSkeletonPulse();
 
     return (
         <View style={styles.container}>

@@ -6,8 +6,7 @@ import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import ShowBlogSkeleton from './ShowBlogSkeleton';
 import { Fontisto as Icon, Feather as Icon2 } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
-import * as api from "../api/api";
+import { useAppSelector } from '../redux/app/hooks';
 import { UserStackNavigationProp } from '../types/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 
@@ -18,14 +17,15 @@ interface ShowBlogProps extends Partial<IBlog> {
     setIsFollowing?: (isFollowing: boolean) => void;
     followButtonDisabled?: boolean;
     onPressFollowButton?: (authorId: string) => void;
+    onPressDeleteBlog?: (blogId: string) => Promise<void> | void;
 }
 
 const ShowBlog: React.FC<ShowBlogProps> = ({
     comments, onPressProfile, isFollowing, setIsFollowing,
-    followButtonDisabled, onPressFollowButton, ...blog
+    followButtonDisabled, onPressFollowButton, onPressDeleteBlog, ...blog
 }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
@@ -41,12 +41,10 @@ const ShowBlog: React.FC<ShowBlogProps> = ({
                 {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () => { // call api to delete blog
-                        api.fetchData(`deleteBlog/${blog._id}`, user.token, null, null).then(() => {
-                            navigation.goBack(); // navigate back to the previous screen after deletion
-                        }).catch((err) => {
-                            alert(`Failed to delete blog: ${err}`); // show error message on failure
-                        });
+                    onPress: () => {
+                        if (blog._id) {
+                            onPressDeleteBlog?.(blog._id);
+                        }
                     }
                 }
             ]

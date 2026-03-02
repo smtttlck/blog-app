@@ -5,26 +5,23 @@ import { globalStyles } from '../styles/globalStyles';
 import { Fontisto as Icon } from '@expo/vector-icons';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
-import { useState } from 'react';
+import { useBlogCardBookmark } from '../hooks/useBlogCardBookmark';
 
 interface ICardProps extends IBlog {
     userId: string;
     onPressCard?: (blogId: string) => void;
     onPressProfile?: (userId: string) => void;
-    onPressBookmark?: (blogId: string, isBookmarked: boolean,
-        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
-        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
-    ) => void;
+    onPressBookmark?: (blogId: string, isBookmarked: boolean) => void;
+    isWaiting?: boolean;
 };
 
 const BlogCardHorizontal: React.FC<ICardProps> = ({
     _id, authorId, title, text, picture_path, updatedAt, userId, isBookmarked, commentCounter,
-    onPressCard, onPressProfile, onPressBookmark,
+    onPressCard, onPressProfile, onPressBookmark, isWaiting,
 }) => {
-    
 
-    const [isWaiting, setIsWaiting] = useState(false);
-    const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
+    // use custom hook to manage bookmark state and handle bookmark button press
+    const { isBookmarkedState, handleBookmarkPress } = useBlogCardBookmark(_id, isBookmarked, onPressBookmark);
 
     return (
         <TouchableOpacity style={styles.card} onPress={() => onPressCard?.(_id)}>
@@ -81,9 +78,9 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
                         </Text>
                     </View>
 
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.bookmarkButton}
-                        onPress={() => onPressBookmark?.(_id, isBookmarkedState as boolean, setIsWaiting, setIsBookmarkedState as React.Dispatch<React.SetStateAction<boolean>>)}
+                        onPress={handleBookmarkPress} // call the bookmark handler from custom hook
                         disabled={isWaiting} // disable button while waiting for API response
                     >
                         <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color={colors.black} />

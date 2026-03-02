@@ -1,57 +1,42 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View, Animated } from 'react-native';
 import { colors } from '../constants/color';
+import { useSkeletonPulse } from '../hooks/useSkeletonPulse';
 
-const SkeletonBox = ({ style }: { style?: any }) => {
-    const opacity = useRef(new Animated.Value(0.3)).current;
-
-    useEffect(() => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(opacity, {
-                    toValue: 1,
-                    duration: 800,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(opacity, {
-                    toValue: 0.3,
-                    duration: 800,
-                    useNativeDriver: true,
-                }),
-            ])
-        ).start();
-    }, [opacity]);
-
+const SkeletonBox = ({ style, opacity }: { style?: any; opacity: Animated.Value }) => {
     return <Animated.View style={[styles.skeleton, style, { opacity }]} />;
 };
 
 const ProfileCardSkeleton = () => {
+    
+    const opacity = useSkeletonPulse();
+
     return (
         <View style={styles.profileCard}>
             <View style={styles.cardHeader}>
                 {/* Skeleton Image */}
-                <SkeletonBox style={styles.profileImage} />
+                <SkeletonBox style={styles.profileImage} opacity={opacity} />
 
                 {/* Skeleton Username */}
-                <SkeletonBox style={styles.username} />
+                <SkeletonBox style={styles.username} opacity={opacity} />
 
                 {/* Skeleton Button */}
-                <SkeletonBox style={styles.followButton} />
+                <SkeletonBox style={styles.followButton} opacity={opacity} />
             </View>
 
             {/* Skeleton Counters */}
             <View style={styles.countersContainer}>
                 <View style={styles.counter}>
-                    <SkeletonBox style={styles.counterNumber} />
-                    <SkeletonBox style={styles.counterLabel} />
+                    <SkeletonBox style={styles.counterNumber} opacity={opacity} />
+                    <SkeletonBox style={styles.counterLabel} opacity={opacity} />
                 </View>
                 <View style={styles.counter}>
-                    <SkeletonBox style={styles.counterNumber} />
-                    <SkeletonBox style={styles.counterLabel} />
+                    <SkeletonBox style={styles.counterNumber} opacity={opacity} />
+                    <SkeletonBox style={styles.counterLabel} opacity={opacity} />
                 </View>
                 <View style={styles.counter}>
-                    <SkeletonBox style={styles.counterNumber} />
-                    <SkeletonBox style={styles.counterLabel} />
+                    <SkeletonBox style={styles.counterNumber} opacity={opacity} />
+                    <SkeletonBox style={styles.counterLabel} opacity={opacity} />
                 </View>
             </View>
         </View>

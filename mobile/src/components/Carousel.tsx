@@ -12,13 +12,11 @@ type CarouselProps = {
     onPressCard: (blogId: string) => void;
     onPressArrow?: (sort: string) => void;
     onPressProfile?: (userId: string) => void;
-    onPressBookmark?: (blogId: string, isBookmarked: boolean, 
-        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
-        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
-    ) => void;
+    onPressBookmark?: (blogId: string, isBookmarked: boolean) => Promise<void> | void;
+    isWaiting?: boolean;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressArrow, onPressProfile, onPressBookmark }) => {
+const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressArrow, onPressProfile, onPressBookmark, isWaiting }) => {
     return (
         <View style={styles.container}>
 
@@ -31,34 +29,35 @@ const Carousel: React.FC<CarouselProps> = ({ title, datas, onPressCard, onPressA
             </View>
 
             {/* Blog Cards Section */}
-            <ScrollView 
+            <ScrollView
                 style={styles.itemContainer}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
                     gap: 10,
-                }}  
+                }}
             >
-                {(datas && datas.length > 0) 
-                ? datas.map((data, index) => (
-                    <BlogCard
-                        key={`${title}-${index}`}
-                        userId={data.userId}
-                        _id={data._id}
-                        authorId={data.authorId}
-                        title={data.title}
-                        text={data.text}
-                        picture_path={data.picture_path}
-                        createdAt={data.createdAt}
-                        updatedAt={data.updatedAt}
-                        isBookmarked={data.isBookmarked}
-                        commentCounter={data.commentCounter}
-                        onPressCard={onPressCard}
-                        onPressProfile={onPressProfile}
-                        onPressBookmark={onPressBookmark}
-                    />
-                )) : 
-                <CarouselSkeleton />
+                {(datas && datas.length > 0)
+                    ? datas.map((data, index) => (
+                        <BlogCard
+                            key={`${title}-${index}`}
+                            userId={data.userId}
+                            _id={data._id}
+                            authorId={data.authorId}
+                            title={data.title}
+                            text={data.text}
+                            picture_path={data.picture_path}
+                            createdAt={data.createdAt}
+                            updatedAt={data.updatedAt}
+                            isBookmarked={data.isBookmarked}
+                            commentCounter={data.commentCounter}
+                            onPressCard={onPressCard}
+                            onPressProfile={onPressProfile}
+                            onPressBookmark={onPressBookmark}
+                            isWaiting={isWaiting}
+                        />
+                    )) :
+                    <CarouselSkeleton />
                 }
             </ScrollView>
 

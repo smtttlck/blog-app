@@ -5,7 +5,7 @@ import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import { Feather as Icon } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../redux/app/hooks';
 
 interface CommentCardProps extends IComment {
     onCommentDeleted?: (commentId: string) => void; // callback to notify parent component of deleted comment
@@ -13,7 +13,7 @@ interface CommentCardProps extends IComment {
 
 const CommentCard: React.FC<CommentCardProps> = ({ _id, userId, text, createdAt, onCommentDeleted }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     let imgPath; // initialize imgPath variable
     try {

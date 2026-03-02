@@ -28,11 +28,25 @@ export const imgPathConverter = (path: string) => {
 
 
 // converts profile image path to full URL for mobile app
-export const profileImgPathConverter = (path: string) => {
-  if (!path || typeof path !== 'string') {
-    return ''; // or return a default profile image URL
-  }
-  return `http://${process.env.API_BASE_URL}${path.split('public')[1].split('\\').join('/')}`;
+export const profileImgPathConverter = (path?: string) => {
+    if (!path || typeof path !== 'string') {
+        return '';
+    }
+
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:image')) {
+        return path;
+    }
+
+    const normalizedPath = path.split('\\').join('/');
+    const publicParts = normalizedPath.split('public');
+
+    if (publicParts.length > 1 && publicParts[1]) {
+        const suffix = publicParts[1].startsWith('/') ? publicParts[1] : `/${publicParts[1]}`;
+        return `http://${process.env.API_BASE_URL}${suffix}`;
+    }
+
+    const withSlash = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+    return `http://${process.env.API_BASE_URL}${withSlash}`;
 }
 
 // converts blog date to a more readable format

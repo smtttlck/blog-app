@@ -1,18 +1,17 @@
-import { Animated, Easing, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
-import React, { useEffect, useRef, useState } from 'react';
-import * as api from "../api/api";
-import { useSelector } from 'react-redux';
-import IUser from '../types/UserTypes';
+import React from 'react';
+import { useAppSelector } from '../redux/app/hooks';
 import { globalStyles } from '../styles/globalStyles';
 import { colors } from '../constants/color';
-import IBlog from '../types/BlogTypes';
 import BlogCardHorizontal from '../components/BlogCardHorizontal';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { UserStackNavigationProp } from '../types/NavigationTypes';
 import { FontAwesome as Icon } from '@expo/vector-icons';
 import fonts from '../constants/fonts';
 import ProfileCardSkeleton from '../components/ProfileCardSkeleton';
+import { useProfileScreenData } from '../hooks/useProfileScreenData';
+import { useLoadingSpin } from '../hooks/useLoadingSpin';
 
 interface ProfileScreenProps {
     route: {
@@ -24,171 +23,36 @@ interface ProfileScreenProps {
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     // use userId from route params if available, otherwise use logged in user's id
     const userId: string = route?.params?.userId || user.user?.id;
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
-    const [blogs, setBlogs] = useState<IBlog[] | null>(null);
-    const [offset, setOffset] = useState<number>(0); // for pagination
-    const [isFetching, setIsFetching] = useState<boolean>(false); // to prevent multiple fetches
-    const [hasMore, setHasMore] = useState<boolean>(true); // to check if more blogs are available
-    const [counters, setCounters] = useState<any>({}); // to store blog, follower, following counters
-    const [userInfo, setUserInfo] = useState<any>({}); // to store user info
-    const [isFollow, setIsFollow] = useState<boolean>(false); // to check if the logged in user follows this profile
-    const [blogType, setBlogType] = useState<"blogs" | "bookmarks" | "comments">("blogs"); // to switch between blogs, bookmarks, comments
-    const [blogTypeChanged, setBlogTypeChanged] = useState<boolean>(false); // to track blog type change
-    const [buttonDisabled, setButtonDisabled] = useState<boolean>(false); // to disable follow button during API call
-
-    const spinValue = useRef(new Animated.Value(0)).current; // for loading spinner animation
-    const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);
-
-    const handleFollowToggle = (id: string): void => { // handle follow/unfollow button press
-        setButtonDisabled(true);
-        api.fetchData(
-            `${isFollow ? "delete" : "post"}Follow`,
-            user.token,
-            null,
-            { followerUserId: user.user?.id, followingUserId: id })
-            .then(() => {
-                setIsFollow(!isFollow);
-                // update follower counter
-                setCounters((prevCounters: any) => ({
-                    ...prevCounters,
-                    followerCounter: isFollow ? prevCounters.followerCounter - 1 : prevCounters.followerCounter + 1
-                }));
-            })
-            .finally(() => setButtonDisabled(false));
-    };
-
-    const handlerBookmark = (
-        blogId: string,
-        isBookmarked: boolean,
-        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
-        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
-    ) => { // toggle bookmark for a blog
-        setIsWaiting(true); // set waiting state to true while waiting for API response
-        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
-            blogId,
-            userId: user.user?.id
-        })
-            .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
-            .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
-    }
-
-    useEffect(() => { // loading spinner animation
-        if (isFetching || blogTypeChanged) {
-            if (!spinAnimation.current) {
-                spinAnimation.current = Animated.loop(
-                    Animated.timing(spinValue, {
-                        toValue: 1,
-                        duration: 800,
-                        easing: Easing.linear,
-                        useNativeDriver: true,
-                    })
-                );
-                spinAnimation.current.start();
-            }
-        } else {
-            if (spinAnimation.current) {
-                spinAnimation.current.stop();
-                spinAnimation.current = null;
-                spinValue.setValue(0);
-            }
-        }
-    }, [isFetching, blogTypeChanged]);
-
-    const spin = spinValue.interpolate({ // interpolate spin value to degrees
-        inputRange: [0, 1],
-        outputRange: ["0deg", "360deg"],
+    // use custom hook to manage the state and logic for fetching and displaying the profile data, blogs, bookmarks, and comments for the profile screen
+    const {
+        blogs,
+        isFetching,
+        hasMore,
+        counters,
+        userInfo,
+        isFollow,
+        blogType,
+        blogTypeChanged,
+        buttonDisabled,
+        isWaiting,
+        toggleBookmark,
+        handleLoadMore,
+        handleTabChange,
+        handleFollowToggle,
+    } = useProfileScreenData({
+        token: user.token as string,
+        currentUserId: user.user?.id,
+        profileUserId: userId,
     });
 
-    const fetchBlogs = async (currentOffset: number = offset) => { // fetch blogs based on blogType
-        if (isFetching) return; // prevent multiple simultaneous fetches
-
-        if (blogTypeChanged) {
-            setBlogs(null);
-            setOffset(0);
-            setHasMore(true);
-            currentOffset = 0;
-        }
-
-        setIsFetching(true);
-        let query: string = `?limit=6&offset=${currentOffset}`;
-        if (blogType === "bookmarks")
-            query += `&onlyBookmarks=true&userId=${userId}`;
-        else if (blogType === "blogs")
-            query += `&authorId=${userId}`;
-        else if (blogType === "comments")
-            query += `&onlyComments=true&userId=${userId}`;
-
-        try {
-            const data: IBlog[] = await api.fetchData("getBlog/", user.token, query) || [];
-
-            if (blogTypeChanged) { // if blog type changed, reset blogs state
-                setBlogs(data);
-                setOffset(6);
-            } else if (data.length > 0) { // append new blogs to existing list for pagination
-                setBlogs(prevBlogs => [...(prevBlogs || []), ...data]);
-                setOffset(prev => prev + data.length);
-            }
-            setBlogTypeChanged(false);
-
-            // Check if there are more blogs to load
-            if (data.length < 6) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error('Error fetching blogs:', error);
-        } finally {
-            setIsFetching(false);
-        }
-    }
-
-    useFocusEffect( // fetch user info and counters when screen is focused
-        React.useCallback(() => {
-            setBlogTypeChanged(true); // to show loading spinner while fetching blogs
-            setBlogs(null); // reset blogs to show loading spinner
-            setUserInfo({}); // reset user info to show skeleton
-            setCounters({}); // reset counters to show skeleton
-
-            const getCounters = async () => {
-                const blogCounter: number = await api.fetchData(`getBlog/count/${userId}`, user.token, null);
-                const followerCounter: number = await api.fetchData(`getFollow/follower/${userId}`, user.token, "?onlyCount=true");
-                const followingCounter: number = await api.fetchData(`getFollow/following/${userId}`, user.token, "?onlyCount=true");
-                setCounters({ blogCounter, followerCounter, followingCounter });
-            };
-
-            getCounters();
-
-            api.fetchData(`getUser/${userId}`, user.token, null)
-                .then((data: IUser) => {
-                    api.fetchData("getFollow/", user.token, `?followerUserId=${user.user?.id}&followingUserId=${userId}`)
-                        .then(follow => {
-                            setIsFollow(!!follow);
-                            setUserInfo({ username: data.username, picture_path: data.picture_path });
-                        });
-                });
-        }, [userId])
-    );
-
-    useFocusEffect( // refetch blogs when screen is focused or blogType/userId changes
-        React.useCallback(() => {
-            setOffset(0);
-            setHasMore(true);
-            setBlogTypeChanged(true);
-            fetchBlogs(0);
-        }, [userId, blogType])
-    );
-
-
-    const handleLoadMore = () => { // load more blogs when end is reached
-        if (!isFetching && hasMore) {
-            fetchBlogs();
-        }
-    };
+    const spin = useLoadingSpin();
 
     return (
         <View style={globalStyles.container}>
@@ -209,7 +73,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                         commentCounter={item.commentCounter}
                         onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                         onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
-                        onPressBookmark={handlerBookmark}
+                        onPressBookmark={toggleBookmark}
+                        isWaiting={isWaiting}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -218,7 +83,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                 ListHeaderComponent={
                     <>
                         {/* Profile Card */}
-                        {(userInfo && Object.keys(userInfo).length > 0 && counters && Object.keys(counters).length > 0) ? (
+                        {(userInfo && counters) ? (
                             <ProfileCard
                                 userId={userId}
                                 username={userInfo?.username}
@@ -241,30 +106,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
                         {/* Bar for blogs/comments/bookmarks list */}
                         <View style={[styles.tabBar, (blogTypeChanged) && { opacity: 0.5, pointerEvents: 'none' }]}>
                             <TouchableOpacity style={[styles.tabButton, blogType === "blogs" && { borderBottomColor: colors.yellow }]}
-                                onPress={() => {
-                                    setBlogType("blogs");
-                                    setBlogTypeChanged(true);
-                                }}
+                                onPress={() => handleTabChange('blogs')}
                             >
                                 <Text style={[globalStyles.text, blogType === "blogs" && { fontWeight: "bold" }]}>
                                     Blogs
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.tabButton, blogType === "bookmarks" && { borderBottomColor: colors.yellow }]}
-                                onPress={() => {
-                                    setBlogType("bookmarks");
-                                    setBlogTypeChanged(true);
-                                }}
+                                onPress={() => handleTabChange('bookmarks')}
                             >
                                 <Text style={[globalStyles.text, blogType === "bookmarks" && { fontWeight: "bold" }]}>
                                     Bookmarks
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.tabButton, blogType === "comments" && { borderBottomColor: colors.yellow }]}
-                                onPress={() => {
-                                    setBlogType("comments");
-                                    setBlogTypeChanged(true);
-                                }}
+                                onPress={() => handleTabChange('comments')}
                             >
                                 <Text style={[globalStyles.text, blogType === "comments" && { fontWeight: "bold" }]}>
                                     Comments

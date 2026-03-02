@@ -6,7 +6,7 @@ import { globalStyles } from '../styles/globalStyles';
 import CommentCard from './CommentCard';
 import { AntDesign as Icon } from '@expo/vector-icons';
 import { IComment } from '../types/BlogTypes';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../redux/app/hooks';
 
 interface CommentBoxProps {
     newComment: string; // new comment text
@@ -18,9 +18,9 @@ interface CommentBoxProps {
 
 const CommentBox: React.FC<CommentBoxProps> = ({ comments, newComment, setNewComment, onCommentAdded, onCommentDeleted }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
-    const profileImagePath = profileImgPathConverter(user.picture_path); // Convert profile image path
+    const profileImagePath = profileImgPathConverter(user.user?.picture_path); // Convert profile image path
 
     return (
         <View style={styles.container}>

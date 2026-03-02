@@ -1,17 +1,16 @@
-import { Animated, Easing, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Animated, FlatList, StyleSheet, Text, View } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
 import SearchInput from '../components/SearchInput';
 import fonts from '../constants/fonts';
-import { useEffect, useRef, useState } from 'react';
-import IBlog from '../types/BlogTypes';
-import * as api from "../api/api";
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../redux/app/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { UserStackNavigationProp } from '../types/NavigationTypes';
 import BlogCardHorizontal from '../components/BlogCardHorizontal';
 import { FontAwesome as Icon } from '@expo/vector-icons';
 import { colors } from '../constants/color';
-import { sortOptionConverter } from '../utils/helpers';
+import { useBookmark } from '../hooks/useBookmark';
+import { useDiscoverBlogs } from '../hooks/useDiscoverBlogs';
+import { useLoadingSpin } from '../hooks/useLoadingSpin';
 
 interface DiscoverScreenProps {
     route: {
@@ -24,92 +23,28 @@ interface DiscoverScreenProps {
 
 const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
 
-    const user = useSelector((state: any) => state.user);
-
-    const [blogs, setBlogs] = useState<IBlog[] | null>(null);
-    const [offset, setOffset] = useState<number>(0); // for pagination
-    const [isFetching, setIsFetching] = useState<boolean>(false); // to prevent multiple fetches
-    const [hasMore, setHasMore] = useState<boolean>(true); // to check if more blogs are available
-    const [searchQuery, setSearchQuery] = useState<string>(""); // for search input
-    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(""); // debounced search query
+    const user = useAppSelector((state) => state.user);
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
-    const spinValue = useRef(new Animated.Value(0)).current; // for loading spinner animation
-
-    useEffect(() => { // loading spinner animation
-        Animated.loop(
-            Animated.timing(spinValue, {
-                toValue: 1,
-                duration: 800,
-                easing: Easing.linear,
-                useNativeDriver: true,
-            })
-        ).start();
-    }, [spinValue, isFetching]);
-
-    const spin = spinValue.interpolate({ // interpolate spin value to degrees
-        inputRange: [0, 1],
-        outputRange: ["0deg", "360deg"],
+    // use custom hook to fetch blogs based on route params and manage pagination
+    const {
+        blogs,
+        isFetching,
+        hasMore,
+        searchQuery,
+        setSearchQuery,
+        handleEndReached,
+    } = useDiscoverBlogs({
+        token: user.token as string,
+        userId: user.user?.id,
+        sort: route.params?.sort,
+        onlyBookmarks: route.params?.onlyBookmarks,
     });
 
-    // debounce search query to avoid excessive API calls
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            setDebouncedSearchQuery(searchQuery);
-        }, 500); // 500ms delay
+    const spin = useLoadingSpin(); // get the animated value for loading spinner from custom hook
 
-        return () => clearTimeout(timeoutId);
-    }, [searchQuery]);
-
-    // reset blogs when debounced search query changes
-    useEffect(() => {
-        setBlogs([]);
-        setHasMore(true);
-        setOffset(0);
-    }, [debouncedSearchQuery, route.params?.sort, route.params?.onlyBookmarks]);
-
-    // fetch blogs function
-    const fetchBlogs = async (offset: number) => {
-        if (isFetching) return;
-        setIsFetching(true);
-        const fetchQuery: string =
-            route.params?.onlyBookmarks
-                ? `?limit=4&offset=${offset}&name=${debouncedSearchQuery}&onlyBookmarks=true&userId=${user.user?.id}`
-                : `?limit=4&offset=${offset}&name=${debouncedSearchQuery}${route.params?.sort ? `&sort=${sortOptionConverter(route.params.sort)}&sortType=DESC` : ""}&userId=${user.user?.id}`;
-        const data: IBlog[] = await api.fetchData("getBlog/", user.token, fetchQuery) || [];
-        if (data.length === 0)
-            setHasMore(false);
-        else
-            setBlogs(prevBlogs => [...(prevBlogs || []), ...data]);
-        setIsFetching(false);
-    }
-
-    useEffect(() => {
-        if (hasMore)
-            fetchBlogs(offset);
-    }, [offset, hasMore, debouncedSearchQuery]);
-
-    const handleEndReached = () => {
-        if (!isFetching && hasMore) {
-            setOffset(prevOffset => prevOffset + 4);
-        }
-    };
-
-    const handlerBookmark = (
-        blogId: string,
-        isBookmarked: boolean,
-        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
-        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
-    ) => { // toggle bookmark for a blog
-        setIsWaiting(true); // set waiting state to true while waiting for API response
-        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
-            blogId,
-            userId: user.user?.id
-        })
-            .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
-            .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
-    }
+    const { toggleBookmark, isWaiting } = useBookmark(user.token as string, user.user?.id); // get the toggleBookmark function from custom hook
 
     return (
 
@@ -133,7 +68,8 @@ const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ route }) => {
                         commentCounter={item.commentCounter}
                         onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                         onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
-                        onPressBookmark={handlerBookmark}
+                        onPressBookmark={toggleBookmark}
+                        isWaiting={isWaiting}
                     />
                 )}
                 showsVerticalScrollIndicator={false}

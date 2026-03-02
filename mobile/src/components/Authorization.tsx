@@ -1,7 +1,8 @@
 import { ReactNode, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { logoutThunk } from "../redux/features/user";
 import { AppDispatch } from "../redux/app/store";
+import { useAppSelector } from "../redux/app/hooks";
 
 interface IAuthorizationProps {
     children: ReactNode;
@@ -10,7 +11,7 @@ interface IAuthorizationProps {
 const Authorization: React.FC<IAuthorizationProps> = ({ children }) => {
 
     const dispatch = useDispatch<AppDispatch>();
-    const { token } = useSelector((state: any) => state.user);
+    const { token } = useAppSelector((state) => state.user);
 
     useEffect(() => {
         if (!token) { 

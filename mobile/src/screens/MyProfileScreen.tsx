@@ -1,9 +1,9 @@
 import React from 'react';
 import ProfileScreen from './ProfileScreen';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../redux/app/hooks';
 
 const MyProfileScreen: React.FC = () => {
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
     
     // create mock route params to pass current user's ID
     const mockRoute = {

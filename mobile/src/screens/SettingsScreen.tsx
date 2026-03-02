@@ -4,15 +4,13 @@ import BackButton from '../components/BackButton';
 import { colors } from '../constants/color';
 import fonts from '../constants/fonts';
 import { FontAwesome as Icon } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../redux/app/store';
 import { logoutThunk } from '../redux/features/user';
 import CustomModal from '../components/CustomModal';
-import * as api from "../api/api";
 import { imgPathConverter } from '../utils/helpers';
-import * as ImagePicker from 'expo-image-picker';
-import { UploadImage } from '../types/ImageTypes';
+import { useSettingsData } from '../hooks/useSettingsData';
+import { useAppSelector } from '../redux/app/hooks';
 
 type SettingItemProps = {
     title: string;
@@ -23,26 +21,40 @@ type SettingItemProps = {
 
 const SettingsScreen: React.FC = () => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const [selectedSetting, setSelectedSetting] = useState<"editProfile" | "changePassword" | null>(null); // track selected setting
-    const [imageUri, setImageUri] = useState<string | null>(null); // profile image URI state
-    const [image, setImage] = useState<UploadImage | null>(null); // profile image upload object
-    const [username, setUsername] = useState(''); // username state
-    const [currentPassword, setCurrentPassword] = useState(''); // current password state
-    const [newPassword, setNewPassword] = useState(''); // new password state
-    const [confirmPassword, setConfirmPassword] = useState(''); // confirm password state
-    const [email, setEmail] = useState(''); // email state
-    const [modalVisible, setModalVisible] = useState(false); // modal visibility state
-    const [modalMessage, setModalMessage] = useState(''); // modal message state
-
-    useEffect(() => { // populate user info on mount
-        setImageUri(user.user?.picture_path || null);
-        setUsername(user.user?.username || '');
-        setEmail(user.user?.email || '');
-    }, [user]);
+    // use custom hook to manage settings data and logic
+    const {
+        selectedSetting,
+        setSelectedSetting,
+        imageUri,
+        username,
+        setUsername,
+        email,
+        setEmail,
+        currentPassword,
+        setCurrentPassword,
+        newPassword,
+        setNewPassword,
+        confirmPassword,
+        setConfirmPassword,
+        modalVisible,
+        setModalVisible,
+        modalMessage,
+        showImagePicker,
+        handleSaveProfile,
+        handleChangePassword,
+    } = useSettingsData({
+        token: user.token as string,
+        user: {
+            id: user.user?.id,
+            username: user.user?.username,
+            email: user.user?.email,
+            picture_path: user.user?.picture_path,
+        },
+    });
 
     // component for individual setting item
     const SettingItem: React.FC<SettingItemProps> = ({ title, text, iconName, onPress }) => (
@@ -55,67 +67,6 @@ const SettingsScreen: React.FC = () => {
             <Icon name="chevron-right" size={fonts.size.xl} color={colors.black} />
         </TouchableOpacity>
     );
-
-    const pickImage = async () => { // function to pick image from gallery
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            setModalMessage('Gallery access permission is required!');
-            setModalVisible(true);
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({ // show selection to the user
-            mediaTypes: "images",
-            allowsEditing: true,
-            aspect: [1, 1], // square aspect ratio
-            quality: 0.8,
-        });
-
-        if (!result.canceled) {
-            setImageUri(result.assets[0].uri);
-            setImage({
-                uri: result.assets[0].uri,
-                name: result.assets[0].fileName || 'profile.jpg',
-                type: result.assets[0].mimeType || 'image/jpeg'
-            });
-        }
-    };
-
-    const takePhoto = async () => { // function to take photo with camera
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-            setModalMessage('Camera access permission is required!');
-            setModalVisible(true);
-            return;
-        }
-
-        const result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-
-        if (!result.canceled) {
-            setImageUri(result.assets[0].uri);
-            setImage({
-                uri: result.assets[0].uri,
-                name: result.assets[0].fileName || 'profile.jpg',
-                type: result.assets[0].mimeType || 'image/jpeg'
-            });
-        }
-    };
-
-    const showImagePicker = () => { // show options to pick image
-        Alert.alert(
-            'Select Profile Picture',
-            'Where do you want to select the photo from?',
-            [
-                { text: 'Camera', onPress: takePhoto },
-                { text: 'Gallery', onPress: pickImage },
-                { text: 'Cancel', style: 'cancel' }
-            ]
-        );
-    };
 
     const EditProfile: React.FC = () => ( // placeholder component for Edit Profile
         <View style={styles.formContainer}>
@@ -157,31 +108,6 @@ const SettingsScreen: React.FC = () => {
         </View>
     );
 
-    const handleSaveProfile = () => { // handle profile save logic
-        if (!username || !email) { // validate inputs
-            setModalMessage('Please fill in all profile fields.');
-            setModalVisible(true);
-            return;
-        }
-        const newDatas = {}; // object to hold updated fields
-        if (username !== user.user.username) Object.assign(newDatas, { username }); // add username if changed
-        if (email !== user.user.email) Object.assign(newDatas, { email }); // add email if changed
-        if (image) Object.assign(newDatas, { image }); // add picture if changed
-        if (Object.keys(newDatas).length === 0) { // check if any changes were made
-            setModalMessage('No changes to save.');
-            setModalVisible(true);
-            return;
-        }
-        api.fetchData('putUser', user.token, `/${user.user.id}`, newDatas)
-            .then(() => {
-                setModalMessage('Profile updated successfully!');
-                setModalVisible(true);
-            }).catch((error) => {
-                setModalMessage(error.response?.data?.message || 'Error updating profile.');
-                setModalVisible(true);
-            });
-    }
-
     const ChangePassword: React.FC = () => ( // placeholder component for Change Password
         <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
@@ -222,29 +148,6 @@ const SettingsScreen: React.FC = () => {
             </TouchableOpacity>
         </View>
     );
-
-    const handleChangePassword = () => { // handle password change logic
-        if (!currentPassword || !newPassword || !confirmPassword) { // validate inputs
-            setModalMessage('Please fill in all password fields.');
-            setModalVisible(true);
-            return;
-        }
-        if (newPassword !== confirmPassword) { // check new password match
-            setModalMessage('New password and confirm password do not match.');
-            setModalVisible(true);
-            return;
-        }
-        api.fetchData('putUser', user.token, `/${user.user.id}/password`, {
-            currentPassword,
-            newPassword
-        }).then(() => {
-            setModalMessage('Password changed successfully!');
-            setModalVisible(true);
-        }).catch((error) => {
-            setModalMessage(error.response?.data?.message || 'Error changing password.');
-            setModalVisible(true);
-        });
-    }
 
     return (
         <View style={globalStyles.container}>

@@ -1,13 +1,14 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { colors } from '../constants/color';
 import { useEffect } from 'react';
 import { AntDesign as Icon } from '@expo/vector-icons';
 import fonts from '../constants/fonts';
 import { globalStyles } from '../styles/globalStyles';
+import { Dispatch, SetStateAction } from 'react';
 
 type ModalProps = {
     visible: boolean; // modal visibility
-    setVisible: (visible: boolean) => void;
+    setVisible: Dispatch<SetStateAction<boolean>>;
     width?: number; // optional width of the modal
     isAutoClose?: boolean; // optional auto close feature
     message?: string; // optional message to display
@@ -23,7 +24,7 @@ const CustomModal: React.FC<ModalProps> = ({ visible, setVisible, width = 300, i
 
             return () => clearTimeout(timer);
         }
-    }, [visible, isAutoClose])
+    }, [visible, isAutoClose, setVisible])
 
     return (
         <Modal
@@ -32,14 +33,16 @@ const CustomModal: React.FC<ModalProps> = ({ visible, setVisible, width = 300, i
             animationType="fade"
             onRequestClose={() => setVisible(false)}
         >
-            <TouchableOpacity onPress={() => setVisible(false)} style={styles.overlay}>
-                <View style={[styles.modalBox, { width }]}>
-                    {message && <Text style={[globalStyles.text, styles.message]}>{message}</Text>}
-                    <TouchableOpacity onPress={() => setVisible(false)} style={{ position: 'absolute', top: 10, right: 10 }}>
-                        <Icon name="close-circle" size={fonts.size.xl} color={colors.black} />
-                    </TouchableOpacity>
-                </View>
-            </TouchableOpacity>
+            <Pressable onPress={() => setVisible(false)} style={styles.overlay}>
+                <TouchableWithoutFeedback>
+                    <View style={[styles.modalBox, { width }]}>
+                        {message && <Text style={[globalStyles.text, styles.message]}>{message}</Text>}
+                        <TouchableOpacity onPress={() => setVisible(false)} style={styles.closeButton}>
+                            <Icon name="close-circle" size={fonts.size.xl} color={colors.black} />
+                        </TouchableOpacity>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Pressable>
         </Modal>
     )
 }
@@ -59,6 +62,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         borderRadius: 10,
         alignItems: 'center',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
     },
     message: {
         fontSize: fonts.size.md,

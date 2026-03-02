@@ -2,47 +2,35 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { globalStyles } from '../styles/globalStyles';
 import { colors } from '../constants/color';
 import CheckBox from 'expo-checkbox';
-import { useState } from 'react';
 import fonts from '../constants/fonts';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../redux/app/store';
-import { loginThunk, signupThunk } from '../redux/features/user';
 import { AntDesign as Icon } from '@expo/vector-icons';
 import CustomModal from './CustomModal';
+import { useLoginForm } from '../hooks/useLoginForm';
 
 const LoginForm = () => {
 
-    const dispatch = useDispatch<AppDispatch>();
-    const { loading, error, token } = useSelector((state: RootState) => state.user); // get auth state from redux store
-
-    // state variables
-    const [isLogin, setIsLogin] = useState(true); // toggle between login and sign up
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [email, setEmail] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // show/hide password state
-    const [rememberMe, setRememberMe] = useState(false); // remember me checkbox state
-    const [modalVisible, setModalVisible] = useState(false); // modal visibility state
-    const [modalMessage, setModalMessage] = useState(''); // modal message state
-
-    const handleLogin = () => { // handle login action
-        dispatch(loginThunk({ username, password, rememberMe })) // dispatch login thunk
-            .then(() => {
-                if (!token) {
-                    setModalVisible(true); // show modal on login failure
-                    setModalMessage(`Login Failed: \n ${error}`); // set modal message
-                }
-            });
-    };
-
-    const handleSignUp = () => { // handle sign up action
-        dispatch(signupThunk({ username, password, email })) // dispatch sign up thunk
-            .unwrap()
-            .catch((err) => {
-                setModalVisible(true); // show modal on sign up failure
-                setModalMessage(`Sign Up Failed: \n ${err}`); // set modal message
-            });
-    };
+    // use custom hook to manage the state and logic for the login/signup form, 
+    // including form fields, loading state, error handling, and modal visibility/message
+    const {
+        loading,
+        isLogin,
+        setIsLogin,
+        username,
+        setUsername,
+        password,
+        setPassword,
+        email,
+        setEmail,
+        showPassword,
+        setShowPassword,
+        rememberMe,
+        setRememberMe,
+        modalVisible,
+        setModalVisible,
+        modalMessage,
+        handleLogin,
+        handleSignUp,
+    } = useLoginForm();
 
     return (
         <View style={globalStyles.container}>
@@ -109,7 +97,7 @@ const LoginForm = () => {
                         onPress={() => setShowPassword(!showPassword)}
                     >
                         <Icon
-                            name={showPassword ? "eye" : "eye-invisible"}
+                            name={showPassword ? 'eye' : 'eye-invisible'}
                             size={fonts.size.xxl}
                             color={showPassword ? colors.black : colors.black2}
                         />

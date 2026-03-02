@@ -1,15 +1,12 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
 import { MaterialCommunityIcons as Icon } from "@expo/vector-icons";
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
-import { useSelector } from 'react-redux';
-import * as api from "../api/api";
-import { useEffect, useState } from 'react';
+import { useAppSelector } from '../redux/app/hooks';
 import { UserStackNavigationProp } from '../types/NavigationTypes';
 import { useNavigation } from '@react-navigation/core';
-import * as ImagePicker from 'expo-image-picker';
-import { UploadImage } from '../types/ImageTypes';
+import { useWriteBlog } from '../hooks/useWriteBlog';
 
 interface DiscoverScreenProps {
     route: {
@@ -21,91 +18,34 @@ interface DiscoverScreenProps {
 
 const WriteScreen: React.FC<DiscoverScreenProps> = ({ route }: DiscoverScreenProps) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
     const blogId: string | undefined = route.params?.blogId || undefined; // get blogId from route params (if editing an existing blog)
 
-    const [title, setTitle] = useState('');
-    const [text, setText] = useState('');
-    const [imageUri, setImageUri] = useState<string | null>(null);
-    const [image, setImage] = useState<UploadImage | null>(null);
+    // use custom hook to manage the state and logic for writing or editing a blog post, including handling image selection and form submission
+    const {
+        title,
+        setTitle,
+        text,
+        setText,
+        imageUri,
+        pickImage,
+        handleSubmit,
+        isSubmitting,
+    } = useWriteBlog({
+        token: user.token as string,
+        userId: user.user.id,
+        blogId,
+    });
 
-    const pickImage = async () => { // image picker
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') { // permission check
-            Alert.alert('Permission required', 'Gallery access permission is required.');
-            return;
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images',
-            quality: 0.8,
-        });
-        if (!result.canceled) { // set selected image uri
-            setImageUri(result.assets[0].uri);
-            setImage({
-                uri: result.assets[0].uri,
-                name: 'blog.jpg',
-                type: result.assets[0].mimeType || 'image/jpeg'
-            });
+    const handlePressSubmit = async () => { // function to handle the press event for the submit button
+        const submittedBlogId = await handleSubmit();
+        if (submittedBlogId) {
+            navigation.navigate('Blog', { blogId: submittedBlogId });
         }
     };
-
-    const handleSubmit = (): void => { // publish button handler
-        if (!title.trim() || !text.trim()) { // validate title and text
-            Alert.alert('Validation Error', 'Title and text cannot be empty.');
-            return;
-        }
-        else if (blogId) { // if editing an existing blog, call api to update blog
-            const imageToUpload = image?.uri === imageUri ? image : null; // only upload new image if it has been changed
-            api.fetchData(`putBlog/${blogId}`, user.token, null, { // call api to update blog
-                title: title,
-                text: text,
-                image: imageToUpload
-            }).then(() => {
-                navigation.navigate('Blog', { blogId }); // navigate to the updated blog
-            }).catch((err) => {
-                alert(`Failed to update blog: ${err}`); // show error message on failure
-            });
-        }
-        else { // if creating a new blog, call api to publish blog
-            api.fetchData('postBlog', user.token, null, { // call api to publish blog
-                title: title,
-                text: text,
-                authorId: user.user.id,
-                image
-            }).then((response: any) => {
-                navigation.navigate('Blog', { blogId: response.data._id }); // navigate to the newly published blog
-            }).catch((err) => {
-                alert(`Failed to publish blog: ${err}`); // show error message on failure
-            });
-        }
-    };
-
-    useEffect(() => { // reset title and text when screen is focused
-        if (!blogId) { // if creating a new blog, reset title and text
-            setText('');
-            setTitle('');
-            setImageUri(null);
-            setImage(null);
-        }
-        else { // if editing an existing blog, fetch blog data and set title and text
-            api.fetchData(`getBlog/${blogId}`, user.token, null)
-                .then(data => {
-                    setTitle(data.title);
-                    setText(data.text);
-                    if (data.picture_path) {
-                        setImageUri(data.picture_path);
-                        setImage({
-                            uri: data.picture_path,
-                            name: 'blog.jpg',
-                            type: 'image/jpeg'
-                        });
-                    }
-                });
-        }
-    }, [])
 
 
     return (
@@ -136,7 +76,7 @@ const WriteScreen: React.FC<DiscoverScreenProps> = ({ route }: DiscoverScreenPro
                     placeholderTextColor={colors.grey}
                     multiline
                 />
-                <TouchableOpacity style={styles.publishButton} onPress={handleSubmit}>
+                <TouchableOpacity style={styles.publishButton} onPress={handlePressSubmit} disabled={isSubmitting}>
                     <Text style={[globalStyles.text, styles.publishButtonText]}>
                         {blogId ? 'Update' : 'Publish'}
                     </Text>

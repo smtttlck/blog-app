@@ -1,26 +1,9 @@
-import { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { colors } from "../constants/color";
+import { useSkeletonPulse } from "../hooks/useSkeletonPulse";
 
 const BlogCardSkeleton = () => {
-  const opacity = useRef(new Animated.Value(0.3)).current;
-
-  useEffect(() => {
-    Animated.loop( // Loop the animation
-      Animated.sequence([ // Sequence of animations
-        Animated.timing(opacity, { // Fade in
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, { // Fade out
-          toValue: 0.3,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
+  const opacity = useSkeletonPulse();
 
   return (
     <Animated.View style={[styles.container, { opacity }]}>

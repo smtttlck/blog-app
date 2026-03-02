@@ -1,54 +1,27 @@
-import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../redux/app/hooks';
 import { globalStyles } from '../styles/globalStyles';
-import * as api from "../api/api";
 import TopBar from '../components/TopBar';
 import Composer from '../components/Composer';
 import Carousel from '../components/Carousel';
-import IBlog from '../types/BlogTypes';
 import { useNavigation } from '@react-navigation/native';
 import { UserStackNavigationProp } from '../types/NavigationTypes';
+import { useBlogs } from '../hooks/useBlogs';
+import { useBookmark } from '../hooks/useBookmark';
 
 const HomeScreen: React.FC = () => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
-    // state for posts
-    const [newPosts, setNewPosts] = useState<IBlog[]>([]);
-    const [topPosts, setTopPosts] = useState<IBlog[]>([]);
+    const newPosts = useBlogs(user.token as string, user.user?.id, "latest"); // fetch latest published blogs using custom hook
+    const topPosts = useBlogs(user.token as string, user.user?.id, "mostBookmarked"); // fetch most bookmarked blogs using custom hook
 
-    useEffect(() => {
-
-        // Latest Published
-        api.fetchData("getBlog", user.token, `?sort=createdAt&sortType=DESC&limit=6&userId=${user.user?.id}`)
-            .then(data => setNewPosts(data));
-
-        // Most Bookmarked
-        api.fetchData("getBlog", user.token, `?sort=bookmarkCounter&sortType=DESC&limit=6&userId=${user.user?.id}`)
-            .then(data => setTopPosts(data));
-
-    }, [user.token, user.user?.id]);
+    const { toggleBookmark, isWaiting } = useBookmark(user.token as string, user.user?.id); // get the toggleBookmark function from custom hook
 
     const handlerBookmarksButton = () => { // navigate to Discover screen with onlyBookmarks filter
         navigation.navigate('Discover', { onlyBookmarks: true });
-    }
-
-    const handlerBookmark = (
-        blogId: string, 
-        isBookmarked: boolean, 
-        setIsWaiting: React.Dispatch<React.SetStateAction<boolean>>,
-        setIsBookmarkedState: React.Dispatch<React.SetStateAction<boolean>>
-    ) => { // toggle bookmark for a blog
-        setIsWaiting(true); // set waiting state to true while waiting for API response
-        api.fetchData((isBookmarked) ? "deleteBookmark" : "postBookmark", user.token, null, { // if already bookmarked, delete it; otherwise, create bookmark
-            blogId,
-            userId: user.user?.id
-        })
-        .then(() => setIsBookmarkedState(!isBookmarked)) // toggle bookmark state
-        .finally(() => setIsWaiting(false)); // set waiting state to false after API response is received
     }
 
     return (
@@ -74,7 +47,8 @@ const HomeScreen: React.FC = () => {
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Latest Published' })}
                     onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
-                    onPressBookmark={handlerBookmark}
+                    onPressBookmark={toggleBookmark}
+                    isWaiting={isWaiting}
                 />
                 <Carousel
                     title="Most Bookmarked"
@@ -82,7 +56,8 @@ const HomeScreen: React.FC = () => {
                     onPressCard={(blogId: string) => navigation.navigate('Blog', { blogId })}
                     onPressArrow={() => navigation.navigate('Discover', { sort: 'Most Bookmarked' })}
                     onPressProfile={(userId: string) => navigation.navigate('Profile', { userId })}
-                    onPressBookmark={handlerBookmark}
+                    onPressBookmark={toggleBookmark}
+                    isWaiting={isWaiting}
                 />
 
             </ScrollView>

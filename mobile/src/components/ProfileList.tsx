@@ -1,13 +1,13 @@
-import { Animated, Easing, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
 import { IUserWithFollowStatus } from '../types/UserTypes';
 import { imgPathConverter } from '../utils/helpers';
-import { useSelector } from 'react-redux';
-import * as api from "../api/api";
-import { useState, useEffect, useRef } from 'react';
+import { useAppSelector } from '../redux/app/hooks';
 import { FontAwesome as Icon } from '@expo/vector-icons';
+import { useLoadingSpin } from '../hooks/useLoadingSpin';
+import { useProfileListData } from '../hooks/useProfileListData';
 
 interface ProfileListProps {
     connectionType: 'follower' | 'following';
@@ -18,94 +18,21 @@ interface ProfileListProps {
 
 const ProfileList: React.FC<ProfileListProps> = ({ connectionType, setConnectionType, users, onUserPress }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
-    // local state to track follow statuses for immediate UI updates
-    const [userFollowStatus, setUserFollowStatus] = useState<{ [key: string]: boolean }>({});
-    const [buttonDisabled, setButtonDisabled] = useState<{ [key: string]: boolean }>({}); // to disable specific follow buttons during API call
+    const spin = useLoadingSpin();
 
-    const spinValue = useRef(new Animated.Value(0)).current; // for loading spinner animation
-    const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);    
-    
-    // determine if we should show loading spinner (when users is null or undefined)
-    const isLoading = !users;
-
-    useEffect(() => { // loading spinner animation
-        if (isLoading) {
-            if (!spinAnimation.current) {
-                spinAnimation.current = Animated.loop(
-                    Animated.timing(spinValue, {
-                        toValue: 1,
-                        duration: 800,
-                        easing: Easing.linear,
-                        useNativeDriver: true,
-                    })
-                );
-                spinAnimation.current.start();
-            }
-        } else {
-            if (spinAnimation.current) {
-                spinAnimation.current.stop();
-                spinAnimation.current = null;
-                spinValue.setValue(0);
-            }
-        }
-    }, [isLoading]);
-    
-    const spin = spinValue.interpolate({ // interpolate spin value to degrees
-        inputRange: [0, 1],
-        outputRange: ["0deg", "360deg"],
+    // use custom hook to manage the follow status and button disabled state for each user in the list, 
+    // as well as the function to handle toggling the follow status
+    const {
+        userFollowStatus,
+        buttonDisabled,
+        handleFollowToggle,
+    } = useProfileListData({
+        users,
+        token: user.token as string,
+        currentUserId: user.user?.id,
     });
-
-    // initialize follow status when users change
-    useEffect(() => {
-        if (users) {
-            const initialStatus: { [key: string]: boolean } = {};
-            users.forEach(userItem => {
-                initialStatus[userItem._id] = userItem.isFollowed || false;
-            });
-            setUserFollowStatus(initialStatus);
-        }
-    }, [users]);
-
-    const handleFollowToggle = async (userId: string) => { // handle follow/unfollow action
-        const currentStatus = userFollowStatus[userId];
-        const newStatus = !currentStatus;
-
-        // optimistic update - immediately update UI
-        setUserFollowStatus(prev => ({
-            ...prev,
-            [userId]: newStatus
-        }));
-
-        // disable button for this specific user
-        setButtonDisabled(prev => ({
-            ...prev,
-            [userId]: true
-        }));
-
-        try {
-            await api.fetchData(
-                `${currentStatus ? "delete" : "post"}Follow`,
-                user.token,
-                null,
-                { followerUserId: user.user?.id, followingUserId: userId }
-            );
-            // success 
-        } catch (error) {
-            // error
-            setUserFollowStatus(prev => ({
-                ...prev,
-                [userId]: currentStatus
-            }));
-        } finally {
-            // re-enable button for this specific user
-            setButtonDisabled(prev => ({
-                ...prev,
-                [userId]: false
-            }));
-        }
-    };
 
     return (
         <ScrollView style={styles.container}>
