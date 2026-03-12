@@ -81,3 +81,10 @@ export const sortOptionConverter = (sortOption: string) => {
             return 'bookmarkCounter';
     }
 };
+
+export const isNewBlog = (updatedAt: string) => {
+    const updatedDate = new Date(updatedAt);
+    const now = new Date();
+    const diffMs = now.getTime() - updatedDate.getTime();
+    return diffMs < 7 * 24 * 60 * 60 * 1000; // less than 7 days
+}

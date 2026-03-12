@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useAppSelector } from '../redux/app/hooks';
 import { globalStyles } from '../styles/globalStyles';
 import TopBar from '../components/TopBar';
@@ -15,14 +16,25 @@ const HomeScreen: React.FC = () => {
 
     const navigation = useNavigation<UserStackNavigationProp>();
 
-    const newPosts = useBlogs(user.token as string, user.user?.id, "latest"); // fetch latest published blogs using custom hook
-    const topPosts = useBlogs(user.token as string, user.user?.id, "mostBookmarked"); // fetch most bookmarked blogs using custom hook
+    const [refreshing, setRefreshing] = useState(false);
+
+    const { blogs: newPosts, refetch: refetchLatest } = useBlogs(user.token as string, user.user?.id, "latest"); // fetch latest published blogs using custom hook
+    const { blogs: topPosts, refetch: refetchMostBookmarked } = useBlogs(user.token as string, user.user?.id, "mostBookmarked"); // fetch most bookmarked blogs using custom hook
 
     const { toggleBookmark, isWaiting } = useBookmark(user.token as string, user.user?.id); // get the toggleBookmark function from custom hook
 
     const handlerBookmarksButton = () => { // navigate to Discover screen with onlyBookmarks filter
         navigation.navigate('Discover', { onlyBookmarks: true });
     }
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await Promise.all([refetchLatest(), refetchMostBookmarked()]);
+        } finally {
+            setRefreshing(false);
+        }
+    }, [refetchLatest, refetchMostBookmarked]);
 
     return (
         <View style={globalStyles.container}>
@@ -35,6 +47,12 @@ const HomeScreen: React.FC = () => {
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 65 }}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
             >
 
                 {/* Composer */}

@@ -3,12 +3,17 @@ import { TabParamList } from "../types/NavigationTypes";
 import { routes } from "../constants/routes";
 import { colors } from "../constants/color";
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
-import { iconNameConverter } from "../utils/helpers";
+import { iconNameConverter, imgPathConverter } from "../utils/helpers";
 import fonts from "../constants/fonts";
+import { useAppSelector } from "../redux/app/hooks";
+import { Image } from "react-native";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const TabNavigator: React.FC = () => {
+
+    const user = useAppSelector((state) => state.user);
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -36,7 +41,9 @@ const TabNavigator: React.FC = () => {
                 },
                 tabBarActiveTintColor: colors.black,
                 tabBarIcon: ({ color, size }) => {
-                    return <Icon name={iconNameConverter(route.name)} size={size * 1.2} color={color} />;
+                    return (route.name === "MyProfile" && user.user?.picture_path) 
+                        ? <Image source={{ uri: imgPathConverter(user.user.picture_path) }} style={{ width: size * 1.2, height: size * 1.1, borderRadius: (size * 1.2) / 2 }} />
+                        : <Icon name={iconNameConverter(route.name)} size={size * 1.2} color={color} />;
                 },
             })}
         >

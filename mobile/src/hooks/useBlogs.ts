@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as blogService from "../services/blog.service";
 import IBlog from "../types/BlogTypes";
 
@@ -6,18 +6,19 @@ export const useBlogs = (token: string, userId: string, sort: "latest" | "mostBo
 
     const [blogs, setBlogs] = useState<IBlog[]>([]); // state to hold the fetched blogs
 
-    useEffect(() => {
+    const refetch = useCallback(async () => {
         if (!token || !userId) return; // if token or userId is not available, do not fetch blogs
-        const fetchBlogs = async () => { // function to fetch blogs based on the provided token, userId, and sort option
-            try {
-                const newBlogs = await blogService.getBlogs(token, userId, sort); // fetch blogs using the blog service
-                setBlogs(newBlogs); // update the state with the fetched blogs
-            } catch (error) {
-                console.error("Error fetching blogs:", error); // log any errors that occur during fetching
-            }
-        };
-        fetchBlogs();
-    }, [token, userId, sort]); // re-run the effect when token, userId, or sort changes
+        try {
+            const newBlogs = await blogService.getBlogs(token, userId, sort); // fetch blogs using the blog service
+            setBlogs(newBlogs); // update the state with the fetched blogs
+        } catch (error) {
+            console.error("Error fetching blogs:", error); // log any errors that occur during fetching
+        }
+    }, [token, userId, sort]);
 
-    return blogs; // return the blogs to be used in the component
+    useEffect(() => {
+        refetch();
+    }, [refetch]); // re-run the effect when token, userId, or sort changes
+
+    return { blogs, refetch }; // return blogs and manual refetch function
 };

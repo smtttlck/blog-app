@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import IBlog from '../types/BlogTypes';
 import { Image } from 'react-native';
-import { blogDateConverter, imgPathConverter, profileImgPathConverter } from '../utils/helpers';
+import { blogDateConverter, imgPathConverter, isNewBlog, profileImgPathConverter } from '../utils/helpers';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
@@ -36,6 +36,13 @@ const BlogCard: React.FC<ICardProps> = ({
             >
                 <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color="black" />
             </TouchableOpacity>
+
+            {/* New Badge */}
+            {isNewBlog(updatedAt.toString()) && (
+                <View style={styles.newBadge}>
+                    <Text style={[globalStyles.text, styles.newBadgeText]}>New</Text>
+                </View>)
+            }
 
             {/* Blog Image */}
             <Image
@@ -114,6 +121,20 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 20,
+    },
+    newBadge: {
+        position: 'absolute',
+        top: 5,
+        left: 7,
+        zIndex: 1,
+        backgroundColor: colors.modalOverlay,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 20,
+    },
+    newBadgeText: {
+        fontSize: fonts.size.xsm,
+        color: colors.white,
     },
     image: {
         width: '100%',
