@@ -3,7 +3,7 @@ import { imgPathConverter } from '../utils/helpers';
 import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
 import fonts from '../constants/fonts';
-import { Ionicons as Icon } from '@expo/vector-icons/';
+import { Ionicons as Icon } from '@expo/vector-icons';
 
 interface ProfileCardProps {
     userId: string;
@@ -38,7 +38,7 @@ const ProfileCard = ({
                 />
 
                 {/* Username */}
-                <Text style={[globalStyles.text, styles.username]}>{username || "Username"}</Text>
+                <Text style={[globalStyles.text, styles.username]} testID="username">{username || "Username"}</Text>
 
                 {followButtonVisibility ? (
                     // Follow Button
@@ -47,6 +47,7 @@ const ProfileCard = ({
                         { display: followButtonVisibility ? 'flex' : 'contents', pointerEvents: followButtonVisibility ? 'auto' : 'none' },
                         { backgroundColor: followButtonDisabled ? colors.grey : colors.yellow }
                         ]}
+                        testID="follow-button"
                         onPress={() => onPressFollowButton && onPressFollowButton(userId)}
                         disabled={followButtonDisabled}
                     >
@@ -56,6 +57,7 @@ const ProfileCard = ({
                     // Setting button
                     <TouchableOpacity
                         onPress={onPressSettings}
+                        testID="settings-button"
                     >
                         <Icon name="settings-sharp" size={fonts.size.lg * 1.25} color={colors.black} />
                     </TouchableOpacity>
@@ -65,15 +67,15 @@ const ProfileCard = ({
             {/* Counters */}
             <View style={styles.countersContainer}>
                 <View style={styles.counter}>
-                    <Text style={styles.counterNumber}>{blogCounter || 0}</Text>
+                    <Text style={styles.counterNumber} testID="blog-counter">{blogCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Blogs</Text>
                 </View>
                 <TouchableOpacity style={styles.counter} onPress={onPressFollowers}>
-                    <Text style={styles.counterNumber}>{followerCounter || 0}</Text>
+                    <Text style={styles.counterNumber} testID="follower-counter">{followerCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Followers</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.counter} onPress={onPressFollowing}>
-                    <Text style={styles.counterNumber}>{followingCounter || 0}</Text>
+                    <Text style={styles.counterNumber} testID="following-counter">{followingCounter || 0}</Text>
                     <Text style={[globalStyles.text, styles.counterLabel]}>Following</Text>
                 </TouchableOpacity>
             </View>

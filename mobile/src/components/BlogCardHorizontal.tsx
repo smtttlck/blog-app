@@ -24,7 +24,7 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
     const { isBookmarkedState, handleBookmarkPress } = useBlogCardBookmark(_id, isBookmarked, onPressBookmark);
 
     return (
-        <TouchableOpacity style={styles.card} onPress={() => onPressCard?.(_id)}>
+        <TouchableOpacity style={styles.card} testID='horizontal-card' onPress={() => onPressCard?.(_id)}>
 
             {/* Blog Image */}
             <Image
@@ -80,10 +80,16 @@ const BlogCardHorizontal: React.FC<ICardProps> = ({
 
                     <TouchableOpacity
                         style={styles.bookmarkButton}
+                        testID='bookmark-button'
                         onPress={handleBookmarkPress} // call the bookmark handler from custom hook
                         disabled={isWaiting} // disable button while waiting for API response
                     >
-                        <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color={colors.black} />
+                        <Icon 
+                            testID='bookmark-icon'
+                            name={isBookmarkedState ? "bookmark-alt" : "bookmark"} 
+                            size={fonts.size.xxl} 
+                            color={colors.black}
+                        />
                     </TouchableOpacity>
 
                 </View>

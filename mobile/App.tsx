@@ -4,7 +4,6 @@ import { useFonts } from 'expo-font';
 import { Provider } from 'react-redux';
 import { store } from './src/redux/app/store';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from './src/constants/color';
 
 export default function App() {
 

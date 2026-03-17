@@ -26,15 +26,21 @@ const BlogCard: React.FC<ICardProps> = ({
 
     return (
 
-        <TouchableOpacity style={styles.container} onPress={() => onPressCard?.(_id)}>
+        <TouchableOpacity style={styles.container} testID='card' onPress={() => onPressCard?.(_id)}>
 
             {/* Bookmark Button */}
             <TouchableOpacity
                 style={styles.bookmarkButton}
+                testID='bookmark-button'
                 onPress={handleBookmarkPress}
                 disabled={isWaiting} // disable button while waiting for API response
             >
-                <Icon name={isBookmarkedState ? "bookmark-alt" : "bookmark"} size={fonts.size.xxl} color="black" />
+                <Icon
+                    testID='bookmark-icon'
+                    name={isBookmarkedState ? "bookmark-alt" : "bookmark"}
+                    size={fonts.size.xxl}
+                    color="black"
+                />
             </TouchableOpacity>
 
             {/* New Badge */}
