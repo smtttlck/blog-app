@@ -21,6 +21,12 @@ export const basicMockBlog: Omit<IBlog, 'userId'> & { userId: string } = {
     updatedAt: new Date(),
 };
 
+export const mockBlogArray:  (Omit<IBlog, 'userId'> & { userId: string })[] = [
+    basicMockBlog,
+    basicMockBlog,
+    basicMockBlog,
+];
+
 export const basicMockUserForProfileCard = {
     userId: 'user-1',
     username: 'testuser',
