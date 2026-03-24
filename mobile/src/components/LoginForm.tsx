@@ -67,6 +67,7 @@ const LoginForm = () => {
                     <Text style={[globalStyles.text, styles.label]}>Username</Text>
                     <TextInput
                         style={styles.input}
+                        testID='username-input'
                         value={username}
                         onChangeText={setUsername}
                         autoCapitalize='none'
@@ -77,6 +78,7 @@ const LoginForm = () => {
                         <Text style={[globalStyles.text, styles.label]}>Email</Text>
                         <TextInput
                             style={styles.input}
+                            testID='email-input'
                             value={email}
                             onChangeText={setEmail}
                             autoCapitalize='none'
@@ -87,6 +89,7 @@ const LoginForm = () => {
                     <Text style={[globalStyles.text, styles.label]}>Password</Text>
                     <TextInput
                         style={styles.input}
+                        testID='password-input'
                         secureTextEntry={!showPassword}
                         value={password}
                         onChangeText={setPassword}
@@ -94,6 +97,7 @@ const LoginForm = () => {
                     />
                     <TouchableOpacity
                         style={styles.icon}
+                        testID='toggle-password-visibility'
                         onPress={() => setShowPassword(!showPassword)}
                     >
                         <Icon
@@ -119,6 +123,7 @@ const LoginForm = () => {
             <View style={styles.submit}>
                 <TouchableOpacity
                     style={styles.button}
+                    testID='submit-button'
                     disabled={loading}
                     onPress={() => { (isLogin) ? handleLogin() : handleSignUp() }}
                 >
