@@ -12,6 +12,7 @@ import fonts from '../constants/fonts';
 import ProfileCardSkeleton from '../components/ProfileCardSkeleton';
 import { useProfileScreenData } from '../hooks/useProfileScreenData';
 import { useLoadingSpin } from '../hooks/useLoadingSpin';
+import BackButton from '../components/BackButton';
 
 interface ProfileScreenProps {
     route: {
@@ -56,6 +57,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ route }) => {
 
     return (
         <View style={globalStyles.container}>
+
+            {/* Show back button if viewing another user's profile */}
+            {userId !== user.user?.id && <BackButton />}
+
             <FlatList
                 data={blogs || []}
                 renderItem={({ item }) => (

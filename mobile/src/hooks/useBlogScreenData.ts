@@ -4,6 +4,7 @@ import IBlog, { IComment } from '../types/BlogTypes';
 import * as blogService from '../services/blog.service';
 import * as commentService from '../services/comment.service';
 import * as followService from '../services/follow.service';
+import { imgPathConverter } from '../utils/helpers';
 
 interface UseBlogScreenDataParams {
     blogId: string;
@@ -105,7 +106,7 @@ export const useBlogScreenData = ({ blogId, token, currentUser }: UseBlogScreenD
                 _id: currentUser.id || '',
                 username: currentUser.username || '',
                 email: currentUser.email || '',
-                picture_path: currentUser.picture_path || '',
+                picture_path: currentUser.picture_path ? imgPathConverter(currentUser.picture_path) : '',
                 __v: 0,
             },
             blogId,

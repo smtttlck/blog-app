@@ -21,11 +21,11 @@ export default BackButton
 const styles = StyleSheet.create({
     backButton: {
         position: 'absolute',
-        top: 35,
-        left: 25,
+        top: 0,
+        left: 10,
         zIndex: 10,
         backgroundColor: colors.whiteOverlay,
-        padding: 12,
+        padding: 10,
         borderRadius: 30,
         borderWidth: 1,
     },

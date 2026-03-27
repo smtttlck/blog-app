@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { profileImgPathConverter } from '../utils/helpers';
+import { imgPathConverter } from '../utils/helpers';
 import fonts from '../constants/fonts';
 import { colors } from '../constants/color';
 import { globalStyles } from '../styles/globalStyles';
@@ -20,7 +20,7 @@ const CommentBox: React.FC<CommentBoxProps> = ({ comments, newComment, setNewCom
 
     const user = useAppSelector((state) => state.user);
 
-    const profileImagePath = profileImgPathConverter(user.user?.picture_path); // Convert profile image path
+    const profileImagePath = imgPathConverter(user.user?.picture_path); // Convert profile image path
 
     return (
         <View style={styles.container}>
