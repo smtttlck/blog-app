@@ -1,25 +1,23 @@
 import { Link } from "react-router-dom"
 import IBlog from "../types/BlogTypes"
 import { FaRegBookmark as UnBookmared, FaBookmark as Bookmared, FaRegComment as Comment } from "react-icons/fa";
-import { useState } from "react";
-import * as api from "../api/Api";
-import { useSelector } from "react-redux";
-import { dateToString, pathForPicture } from "../utils/helperFuncs";
+import { dateToString, getUserIdFromToken, pathForPicture } from "../utils/helperFuncs";
+import useCardBookmark from "../hooks/useCardBookmark";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface ICardProps extends IBlog {
     userId: string;
-};
+}
 
 const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, updatedAt, userId, isBookmarked, commentCounter }) => {
-    
-    const user = useSelector((state: any) => state.user);
-
-    const [bookmark, setBookmark] = useState<boolean>(isBookmarked!);
-
-    const handleBookmark = (): void => {
-        api.fetchData(`${bookmark ? "delete" : "post"}Bookmark`, user.token, { userId, blogId: _id }, null)
-            .then(() => setBookmark(!bookmark));
-    }
+    const user = useAppSelector((state) => state.user);
+    const currentUserId = user.id || getUserIdFromToken(user.token);
+    const { bookmark, handleBookmark } = useCardBookmark({
+        token: user.token,
+        blogId: _id,
+        userId,
+        isInitiallyBookmarked: isBookmarked,
+    });
 
     return (
         <div className="card mb-3">
@@ -39,7 +37,7 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                             <h5 className="card-title">{title}</h5>
                             <p className="card-text">{text}</p>
                         </Link>
-                        <Link to={(typeof authorId !== "string" && authorId._id !== user.id) ? `/user/${authorId._id}` : "/profile"}>
+                        <Link to={(typeof authorId !== "string" && authorId._id !== currentUserId) ? `/user/${authorId._id}` : "/profile"}>
                             <div className="author d-flex position-absolute bottom-0 mb-3">
                                 <div className="profile-picture me-3">
                                     {typeof authorId !== "string" && authorId.picture_path === "" ?
@@ -67,7 +65,7 @@ const Card: React.FC<ICardProps> = ({ _id, authorId, title, text, picture_path, 
                     </div>
                     <span 
                         className="bookmark d-flex position-absolute bottom-0 end-0 m-3 fs-4"
-                        onClick={() => handleBookmark()}
+                        onClick={handleBookmark}
                     >
                         {bookmark ? <Bookmared /> : <UnBookmared />}
                     </span>

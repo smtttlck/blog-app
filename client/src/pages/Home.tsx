@@ -1,36 +1,24 @@
-import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { useSelector } from "react-redux";
 import List from "../components/List";
-import IBlog from "../types/BlogTypes";
-import * as api from "../api/Api";
 import Footer from "../components/Footer";
 import Modal from "../components/Modal";
+import useHomePage from "../hooks/useHomePage";
+import useAppSelector from "../hooks/useAppSelector";
 
 const Home = () => {
 
-    const user = useSelector((state: any) => state.user);
-
-    const [isNewUser, setIsNewUser] = useState<boolean>(false);
-    const [newPosts, setNewPosts] = useState<IBlog[]>([]);
-    const [topPosts, setTopPosts] = useState<IBlog[]>([]);
-
-    useEffect(() => {
-        document.title = "Blog App";
-
-        if(localStorage.getItem("newUser")) {
-            setIsNewUser(true);
-            localStorage.removeItem("newUser");
-        }
-
-        // Latest Published
-        api.fetchData("getBlog", user.token, null, `?sort=createdAt&sortType=DESC&limit=6&userId=${user.id}`)
-            .then(data => setNewPosts(data));
-
-        // Most Bookmarked
-        api.fetchData("getBlog", user.token, null, `?sort=bookmarkCounter&sortType=DESC&limit=6&userId=${user.id}`)
-            .then(data => setTopPosts(data));
-    }, [])
+    const user = useAppSelector((state) => state.user);
+    
+    const {
+        isNewUser,
+        newPosts,
+        topPosts,
+        isFetchingNewPosts,
+        isFetchingTopPosts,
+    } = useHomePage({
+        token: user.token,
+        userId: user.id,
+    });
 
     return (
         <main className="page"> 
@@ -59,14 +47,14 @@ const Home = () => {
                     title="Latest Published"
                     datas={newPosts}
                     targetUrl="/explore?sort=createdAt"
-                    isFetching={true}
+                    isFetching={isFetchingNewPosts}
                 />
 
                 <List
                     title="Most Bookmarked"
                     datas={topPosts}
                     targetUrl="/explore?sort=bookmarkCounter"
-                    isFetching={true}
+                    isFetching={isFetchingTopPosts}
                 />
 
             </div>

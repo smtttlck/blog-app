@@ -1,20 +1,10 @@
 import { PiPencilLineBold as Logo, PiMagnifyingGlassBold as Search } from "react-icons/pi";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { logout } from "../redux/features/user";
-import { useRef } from "react";
+import { Link } from "react-router-dom";
+import useNavbar from "../hooks/useNavbar";
 
 const Navbar: React.FC = () => {
-
-    const location = useLocation();
-    const pagePath: string = location.pathname.split('/')[1];
     
-    const navigate = useNavigate();
-
-    const searchBarRef = useRef<HTMLInputElement>(null);
-
-    const user = useSelector((state: any) => state.user);
-    const dispatch = useDispatch();
+    const { handleLogout, handleSearch, pagePath, searchBarRef, user } = useNavbar();
 
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary w-100">
@@ -33,16 +23,16 @@ const Navbar: React.FC = () => {
                 <div className="collapse navbar-collapse" id="navbarText">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
-                            <Link to="/" className={`nav-link ${(pagePath === "/" || pagePath === "") ? "active" : ""}`}>Home</Link>
+                            <Link to="/" className={`nav-link ${pagePath === "" ? "active" : ""}`}>Home</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/explore" className={`nav-link ${pagePath === "/explore" ? "active" : ""}`}>Explore</Link>
+                            <Link to="/explore" className={`nav-link ${pagePath === "explore" ? "active" : ""}`}>Explore</Link>
                         </li>
                         <li className="nav-item">
                             <Link to="/write" className={`nav-link ${pagePath === "write" ? "active" : ""}`}>Write</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/about" className={`nav-link ${pagePath === "/about" ? "active" : ""}`}>About</Link>
+                            <Link to="/about" className={`nav-link ${pagePath === "about" ? "active" : ""}`}>About</Link>
                         </li>
                     </ul>
                     <div className="search-bar input-group me-3">
@@ -55,7 +45,7 @@ const Navbar: React.FC = () => {
                             className="btn btn-outline-secondary" 
                             type="button" 
                             id="button-addon2"
-                            onClick={() => navigate(`/explore?name=${searchBarRef.current?.value}`)}
+                            onClick={handleSearch}
                         >
                             <Search />
                         </button>
@@ -72,9 +62,9 @@ const Navbar: React.FC = () => {
                             </li>
                             <li
                                 className="nav-item"
-                                onClick={() => dispatch(logout())}
+                                onClick={handleLogout}
                             >
-                                <Link to="/login" className="dropdown-item">Log out</Link>
+                                <span className="dropdown-item">Log out</span>
                             </li>
                         </ul>
                     </span>

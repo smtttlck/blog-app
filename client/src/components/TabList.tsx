@@ -1,13 +1,13 @@
-type BlogType = "blogs" | "bookmarks" | "comments";
+import { ProfileBlogType } from "../types/ProfileTypes";
 
 interface ITabListProps {
-    blogType: BlogType;
-    setBlogType: React.Dispatch<React.SetStateAction<"blogs" | "bookmarks" | "comments">>;
+    blogType: ProfileBlogType;
+    setBlogType: React.Dispatch<React.SetStateAction<ProfileBlogType>>;
 }
 
 const TabList: React.FC<ITabListProps> = ({ blogType, setBlogType }) => {
 
-    const types: BlogType[] = ["blogs", "bookmarks", "comments"];
+    const types: ProfileBlogType[] = ["blogs", "bookmarks", "comments"];
 
     return (
         <div className="tablist d-flex justify-content-center mt-3 mb-4">

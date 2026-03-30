@@ -1,11 +1,10 @@
 import Navbar from "../components/Navbar";
-import { useSelector } from "react-redux";
 import CreateBlog from "../components/CreateBlog";
 import Footer from "../components/Footer";
+import useWritePage from "../hooks/useWritePage";
 
 const Write = () => {
-
-    const user = useSelector((state: any) => state.user);
+    const { authorId, token } = useWritePage();
 
     return (
         <main className="page">
@@ -14,8 +13,8 @@ const Write = () => {
             <div className="container">
                 
                 <CreateBlog 
-                    authorId={user.id}
-                    token={user.token}
+                    authorId={authorId}
+                    token={token}
                 />
 
             </div>

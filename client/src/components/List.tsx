@@ -1,8 +1,8 @@
-import { useSelector } from "react-redux";
 import IBlog from "../types/BlogTypes";
 import Card from "./Card";
 import Loading from "./Loading";
 import { useNavigate } from "react-router-dom";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface IListProps {
     title?: string;
@@ -14,7 +14,7 @@ interface IListProps {
 
 const List: React.FC<IListProps> = ({ title, cardType, targetUrl, datas, isFetching }) => {
 
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const navigate = useNavigate();
 

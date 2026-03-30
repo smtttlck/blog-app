@@ -1,18 +1,8 @@
-import { useEffect } from "react"
 import Form from "../components/Form"
-import { useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom";
+import useLoginPage from "../hooks/useLoginPage";
 
 const Login = () => {
-
-  const navigate = useNavigate();
-
-  const user = useSelector((state: any) => state.user);
-
-  useEffect(() => {
-    if(user.username !== "")
-      navigate("/");
-  }, [])
+  useLoginPage();
 
   return (
     <main className="login d-flex justify-content-center">

@@ -1,24 +1,16 @@
-import { ReactNode, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { ReactNode } from "react";
+import useAuthorization from "../hooks/useAuthorization";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface IAuthorizationProps {
     children: ReactNode;
 }
 
 const Authorization: React.FC<IAuthorizationProps> = ({ children }) => {
+    const user = useAppSelector((state) => state.user);
+    const isAuthorized = useAuthorization(user.token);
 
-    const navigate = useNavigate();
-
-    const user = useSelector((state: any) => state.user);
-
-    useEffect(() => {
-        if (user.id === "") {
-            navigate("/login");
-        }
-    }, [user, navigate]);
-
-    return <>{user.id !== "" && children}</>;
+    return <>{isAuthorized && children}</>;
 }
 
 export default Authorization

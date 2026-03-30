@@ -1,38 +1,29 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import * as api from "../api/Api";
 import { useParams } from "react-router-dom";
 import Loading from "./Loading";
+import { IProfileCounters } from "../types/ProfileTypes";
+import useProfileCard from "../hooks/useProfileCard";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface IProfileCardProps {
     username: string;
     picture_path: string;
     isFollow?: boolean;
     setIsFollow?: React.Dispatch<React.SetStateAction<boolean>>;
-    counters: any;
+    counters: IProfileCounters;
 }
 
 const ProfileCard: React.FC<IProfileCardProps> = ({ username, picture_path, isFollow, setIsFollow, counters }) => {
-
-    const user = useSelector((state: any) => state.user);
+    const user = useAppSelector((state) => state.user);
 
     const { id } = useParams<string>();
-
-    const [followingCount, setFollowingCount] = useState<number>(0);
-
-    useEffect(() => {
-        setFollowingCount(counters.followingCounter);
-    }, [counters.followingCounter])
-
-
-    const handlerFollow = (): void => {
-        api.fetchData(`${isFollow ? "delete" : "post"}Follow`, user.token, { followerUserId: user.id, followingUserId: id }, null)
-            .then(() => {
-                setFollowingCount((isFollow) ? followingCount - 1 : followingCount + 1);
-                if (setIsFollow)
-                    setIsFollow(!isFollow);
-            });
-    }
+    const { followingCount, handleFollow } = useProfileCard({
+        token: user.token,
+        currentUserId: user.id,
+        targetUserId: id,
+        isFollow,
+        setIsFollow,
+        followingCounter: counters.followingCounter,
+    });
 
     return (
         <div className="profile-card fs-5 d-flex justify-content-center">
@@ -47,7 +38,7 @@ const ProfileCard: React.FC<IProfileCardProps> = ({ username, picture_path, isFo
                             {(username !== user.username) && (
                                 <button
                                     className="follow-button btn ms-2"
-                                    onClick={() => handlerFollow()}
+                                    onClick={handleFollow}
                                 >
                                     {isFollow ? "Unfollow" : "Follow"}
                                 </button>

@@ -1,42 +1,31 @@
-import { useSelector } from "react-redux";
 import IBlog from "../types/BlogTypes";
 import { FaEdit as Edit, FaRegTrashAlt as Delete } from "react-icons/fa";
 import Modal from "./Modal";
-import { useRef, useState } from "react";
-import * as api from "../api/Api";
 import { Link } from "react-router-dom";
-import { dateToString, pathForPicture } from "../utils/helperFuncs";
+import { dateToString, getUserIdFromToken, pathForPicture } from "../utils/helperFuncs";
+import useShowBlog from "../hooks/useShowBlog";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface IShowBlogProps extends IBlog { }
 
-const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_path, text, title, updatedAt }) => {
-
-    const user = useSelector((state: any) => state.user);
-
-    const [operation, setOperation] = useState<"edit" | "show">("show");
-
-    const titleRef = useRef<HTMLInputElement>(null);
-    const textRef = useRef<HTMLTextAreaElement>(null);
-
-    type BlogForUpdate = Omit<IBlog, "_id" | "authorId" | "createdAt" | "updatedAt">;
-
-    const updateHandler = (): void =>  {
-        const blog: BlogForUpdate = {
-            title: titleRef.current?.value as string,
-            text: textRef.current?.value as string
-        }
-        api.fetchData(`putBlog/${_id}`, user.token, blog, null)
-            .then(() => window.location.reload());
-    }
+const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_path, text, title, updatedAt: _updatedAt }) => {
+    const user = useAppSelector((state) => state.user);
+    const currentUserId = user.id || getUserIdFromToken(user.token);
+    const { operation, textRef, titleRef, toggleOperation, updateHandler } = useShowBlog({
+        token: user.token,
+        blogId: _id,
+        defaultTitle: title,
+        defaultText: text,
+    });
 
     return (
         <>
-            {(typeof authorId !== "string" && user.id == authorId._id) &&
+            {(typeof authorId !== "string" && currentUserId === authorId._id) &&
                 <Modal
-                id={_id}
-                token={user.token}
-                option="deleteBlog"
-            />
+                    id={_id}
+                    token={user.token}
+                    option="deleteBlog"
+                />
             }
             <div className={`blog py-4 ${operation === "edit" ? "mb-5" : ""}`}>
                 <div className="blog-img">
@@ -46,12 +35,12 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                         alt={title}
                     />
                 </div>
-                {(typeof authorId !== "string" && authorId._id === user.id) && (
+                {(typeof authorId !== "string" && authorId._id === currentUserId) && (
                     <div className="blog-buttons fs-3 float-end">
-                        <span 
-                            className="edit-button me-1" 
+                        <span
+                            className="edit-button me-1"
                             title="Edit"
-                            onClick={() => setOperation(operation === "show" ? "edit" : "show")}
+                            onClick={toggleOperation}
                         >
                             <Edit />
                         </span>
@@ -65,11 +54,11 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                     </div>
                 )}
                 <div className="blog-title d-flex justify-content-center">
-                    {operation === "show" ? 
-                        <h1 className="fs-1">{title}</h1> : 
-                        <input 
+                    {operation === "show" ?
+                        <h1 className="fs-1">{title}</h1> :
+                        <input
                             ref={titleRef} defaultValue={title}
-                            className="form-check fs-1 border-0 p-0" 
+                            className="form-check fs-1 border-0 p-0"
                             type="text" name="title"
                         />
                     }
@@ -101,19 +90,19 @@ const ShowBlog: React.FC<IShowBlogProps> = ({ _id, authorId, createdAt, picture_
                     <p className="date fs-2">{dateToString(createdAt)}</p>
                 </div>
                 <div className="text text-break fs-4">
-                {operation === "show" ? 
-                        <p>{text}</p> : 
-                        <textarea 
+                    {operation === "show" ?
+                        <p>{text}</p> :
+                        <textarea
                             ref={textRef} defaultValue={text}
-                            className="form-check fs-1 border-0 p-0 w-100" 
+                            className="form-check fs-1 border-0 p-0 w-100"
                             name="text" rows={10} lang="en"
                         />
                     }
                 </div>
-                {operation === "edit" && 
-                    <button 
+                {operation === "edit" &&
+                    <button
                         className="btn btn-primary float-end my-3"
-                        onClick={() => updateHandler()}
+                        onClick={updateHandler}
                     >
                         Update
                     </button>

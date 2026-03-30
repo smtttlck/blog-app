@@ -1,39 +1,18 @@
 import { Field, Formik, Form as FormikForm } from "formik";
-import React, { useState } from "react";
+import React from "react";
 import { PiPencilLineBold as Logo } from "react-icons/pi";
-import { ILoginValues, IRegisterValues } from "../types/LoginTypes";
-import * as api from "../api/Api";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import IUser from "../types/UserTypes";
-import { jwtDecode } from "jwt-decode";
-import { login } from "../redux/features/user";
+import useAuthForm from "../hooks/useAuthForm";
 
 const Form: React.FC = () => {
-
-    const navigate = useNavigate();
-
-    const user = useSelector((state: any) => state.user);
-    const dispatch = useDispatch();
-
-    interface IToken {
-        user: IUser;
-        exp: number;
-    }
-
-    const [form, setForm] = useState<"login" | "register">("login");
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-    const loginInitialValues: ILoginValues = {
-        username: '',
-        password: ''
-    }
-
-    const registerInitialValues: IRegisterValues = {
-        username: '',
-        email: '',
-        password: ''
-    }
+    const {
+        clearErrors,
+        errors,
+        form,
+        handleSubmit,
+        loginInitialValues,
+        registerInitialValues,
+        setForm,
+    } = useAuthForm();
 
     return (
         <div className="form d-flex flex-column align-items-center mt-5 border rounded">
@@ -58,32 +37,7 @@ const Form: React.FC = () => {
             <div className="form-inputs w-100">
                 <Formik
                     initialValues={(form === "login") ? loginInitialValues : registerInitialValues}
-                    onSubmit={async (values: ILoginValues | IRegisterValues) => {
-                        if (form === "register") { // register
-                            try {
-                                await api.register(values as IRegisterValues);
-                                localStorage.setItem("newUser", "true");
-                            } catch (err: any) {
-                                const errorMessage: string = err.response?.data?.message;
-                                if (errorMessage === "This username is already registered" || errorMessage === "This email is already registered") {
-                                    const inputName: string = errorMessage.split(' ')[1];
-                                    setErrors({ ...errors, [inputName]: errorMessage });
-                                }
-                            }
-                        }
-                        try { // login
-                            const result: any = await api.login({ username: values.username, password: values.password } as ILoginValues);
-                            if (result.token) {
-                                const token: IToken = jwtDecode<IToken>(result.token as string);
-                                dispatch(login({ user: token.user, token: result.token }));
-                                navigate("/");
-                            }
-                        } catch (err: any) {
-                            const errorMessage: string = err.response?.data?.message;
-                            if (errorMessage === "Username or password not valid")
-                                setErrors({ ["username"]: "Username or password not valid", ["password"]: "Username or password not valid" });
-                        }
-                    }}
+                    onSubmit={handleSubmit}
                 >
                     <FormikForm>
                         {(form === "login") ? (
@@ -116,7 +70,7 @@ const Form: React.FC = () => {
                         <button
                             className="btn btn-dark d-block w-50 my-3 mx-auto"
                             type="submit"
-                            onClick={() => setErrors({})}
+                            onClick={clearErrors}
                         >
                             Submit
                         </button>

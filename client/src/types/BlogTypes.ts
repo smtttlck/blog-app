@@ -1,5 +1,7 @@
 import IUser from "./UserTypes";
 
+export type ExploreSortField = "createdAt" | "bookmarkCounter";
+
 export default interface IBlog {
     _id: string;
     authorId: IUser['_id'] | IUser;
@@ -11,6 +13,8 @@ export default interface IBlog {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type CreateBlogValues = Pick<IBlog, "authorId" | "title" | "text"> & { image?: File | null };
 
 export interface IComment extends Document {
     userId: IUser['_id'] | IUser;

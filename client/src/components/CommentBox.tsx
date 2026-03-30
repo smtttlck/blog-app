@@ -1,34 +1,26 @@
-import { useSelector } from "react-redux";
 import { IoSend as Send } from "react-icons/io5";
 import { IComment } from "../types/BlogTypes";
-import { useRef } from "react";
-import * as api from "../api/Api";
 import CommentCard from "./CommentCard";
+import useCommentBox from "../hooks/useCommentBox";
+import useAppSelector from "../hooks/useAppSelector";
 
 interface ICommentProps {
     blogId: string;
     comments: IComment[] | null;
-    setComments: React.Dispatch<React.SetStateAction<IComment[] | null>>;
     newComment: boolean;
     setNewComment: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Comment: React.FC<ICommentProps> = ({ blogId, comments, setComments, newComment, setNewComment }) => {
+const Comment: React.FC<ICommentProps> = ({ blogId, comments, newComment, setNewComment }) => {
 
-    const user = useSelector((state: any) => state.user);
-
-    const commentInputRef = useRef<HTMLTextAreaElement>(null);
-
-    const sendComment = (): void => {
-        if (commentInputRef.current) {
-            const comment = commentInputRef.current.value;
-            api.fetchData("postComment/", user.token, { userId: user.id, blogId, text: comment }, null)
-                .then(() => {
-                    setNewComment(!newComment);
-                    commentInputRef.current!.value = "";
-                });
-        }
-    }
+    const user = useAppSelector((state) => state.user);
+    const { commentInputRef, sendComment } = useCommentBox({
+        blogId,
+        token: user.token,
+        userId: user.id,
+        newComment,
+        setNewComment,
+    });
 
     return (
         <div className="comment-container w-100">
@@ -47,7 +39,7 @@ const Comment: React.FC<ICommentProps> = ({ blogId, comments, setComments, newCo
                     <button
                         className="btn p-0 ms-2 fs-3"
                         title="Send"
-                        onClick={() => sendComment()}
+                        onClick={sendComment}
                     >
                         <Send />
                     </button>

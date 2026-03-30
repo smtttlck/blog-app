@@ -1,57 +1,19 @@
-import { useNavigate } from "react-router-dom";
-import * as api from "../api/Api";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { updatePicturePath } from "../redux/features/user";
-
-interface IModalProps {
-    id: string;
-    token: string;
-    option: string;
-}
+import useModal from "../hooks/useModal";
+import type { IModalProps } from "../types/ComponentTypes";
 
 const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
-
-    const user = useSelector((state: any) => state.user);
-    const dispatch = useDispatch();
-
-    const navigate = useNavigate();
-
-    const [modalOption, setModalOption] = useState<string>(option)
-    const [profilePicture, setProfilePicture] = useState<string>("");
-    const [file, setFile] = useState<File | null>(null);
-
-    const handleProfilePicChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFile(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (e.target?.result) {
-                    setProfilePicture(e.target.result as string);
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-
-    const deleteHandler = (): void => {
-        api.fetchData(`deleteBlog/${id}`, token, null, null)
-            .then(() => navigate("/"));
-    }
-
-    const updateHandler = (): void => {
-        const data = { image: file }
-        api.fetchData(`putUser/${id}`, token, data, null)
-            .then(() => {
-                api.fetchData(`getUser/${user.id}`, user.token, null, null)
-                    .then(data => {
-                        dispatch(updatePicturePath(data.picture_path));                
-                        location.reload();
-                    });
-            });
-    }
+    const {
+        deleteHandler,
+        handleCloseModal,
+        handleProfilePicChange,
+        modalOption,
+        profilePicture,
+        updateHandler,
+    } = useModal({
+        id,
+        token,
+        option,
+    });
 
     return (
         <div
@@ -63,7 +25,7 @@ const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
                     <div className="modal-header">
                         <button
                             type="button" className="btn-close"
-                            onClick={() => setModalOption("")}
+                            onClick={handleCloseModal}
                             data-bs-dismiss="modal" aria-label="Close"
                         />
                     </div>
@@ -108,7 +70,7 @@ const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
                                     type="button"
                                     className={`btn btn-secondary w-${profilePicture === "" ? "100" : "50"}`}
                                     data-bs-dismiss="modal"
-                                    onClick={() => setModalOption("")}
+                                    onClick={handleCloseModal}
                                 >
                                     Skip for now
                                 </button>
@@ -119,7 +81,7 @@ const Modal: React.FC<IModalProps> = ({ id, token, option }) => {
                                         data-bs-dismiss="modal"
                                         onClick={() => {
                                             updateHandler();
-                                            setModalOption("");
+                                            handleCloseModal();
                                         }}
                                     >
                                         Update photo
